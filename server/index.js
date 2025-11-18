@@ -12,7 +12,7 @@ const PORT = process.env.PORT;
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "http://127.0.0.1:5173",
     credentials: true,
   })
 );
@@ -69,10 +69,10 @@ app.get("/callback", async (request, response) => {
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
-    response.redirect("http://localhost:5173");
+    response.redirect("http://127.0.0.1:5173");
   } catch (error) {
     console.error(error);
-    response.redirect("http://localhost:5173?error=invalid_token");
+    response.redirect("http://127.0.0.1:5173?error=invalid_token");
   }
 });
 
