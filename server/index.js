@@ -4,6 +4,7 @@ const cors = require("cors");
 const querystring = require("querystring");
 const axios = require("axios");
 const cookieParser = require("cookie-parser");
+const db = require("./database");
 
 dotenv.config();
 
@@ -16,9 +17,9 @@ app.use(
     credentials: true,
   })
 );
+
 app.use(cookieParser());
 app.use(express.json());
-
 app.get("/", (request, response) => {
   response.send("Server is running");
 });
@@ -92,6 +93,58 @@ app.get("/api/playlists", async (request, response) => {
   } catch (error) {
     console.error(error);
     response.status(500).json({ error: "Failed to fetch playlists" });
+  }
+});
+
+app.get("/api/playlist/:id", async (request, response) => {
+  try {
+    const response = await axios.get(
+      `https://api.spotify.com/v1/playlists/${request.params.id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${request.cookies.spotify_access_token}`,
+        },
+      }
+    );
+    console.log(`Pobrano dane playlisty ${request.params.id}`);
+    response.json(response.data);
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ error: "Failed to fetch playlist" });
+  }
+});
+
+app.get("api/playlist/:id/tracks", async (requset, response) => {
+  try {
+    const playlistId = requset.params.id;
+    const access_token = requset.cookies.spotify_access_token;
+    const tracksResponse = await axios.get(
+      `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
+      {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      }
+    );
+    console.log(`Pobrano dane playlisty ${playlistId}`);
+    response.json(tracksResponse.data);
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ error: "Failed to fetch playlist tracks" });
+  }
+});
+
+app.get("api/favorites", async (request, response) => {
+  try {
+    db.all("SELECT * FROM favorites", (err, rows) => {
+      if (err) {
+        throw err;
+      }
+      response.json(rows);
+    });
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ error: "Failed to fetch favorites" });
   }
 });
 

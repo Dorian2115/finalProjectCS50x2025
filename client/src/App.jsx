@@ -1,36 +1,71 @@
 import { useState, useEffect } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import axios from "axios";
 import "./App.css";
+import PlaylistDetails from "./components/PlaylistDetails";
 
 function App() {
   const [playlists, setPlaylists] = useState(null);
+  const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPlaylist, setSelectedPlaylist] = useState(null);
+  const [view, setView] = useState("list"); // 'list' or 'details'
 
   useEffect(() => {
-    const fetchPlaylists = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(
-          "http://127.0.0.1:3001/api/playlists",
-          {
+        const [playlistsRes, favoritesRes] = await Promise.all([
+          axios.get("http://127.0.0.1:3001/api/playlists", {
             withCredentials: true,
-          }
-        );
-        setPlaylists(response.data.items);
-        console.log(
-          "Użytkownik jest już zalogowany. Pobrano playlisty:",
-          response.data.items
-        );
+          }),
+          axios.get("http://127.0.0.1:3001/api/favorites", {
+            withCredentials: true,
+          }),
+        ]);
+
+        setPlaylists(playlistsRes.data.items);
+        setFavorites(favoritesRes.data);
       } catch (error) {
-        console.error("Error fetching playlists:", error);
-        setPlaylists([]);
+        console.error("Error fetching data:", error);
+        // If 401, it means not logged in, which is fine
       } finally {
         setLoading(false);
       }
     };
-    fetchPlaylists();
+    fetchData();
   }, []);
+
+  const toggleFavorite = async (playlist) => {
+    const isFav = favorites.some((fav) => fav.playlist_id === playlist.id);
+
+    try {
+      if (isFav) {
+        await axios.delete(
+          `http://127.0.0.1:3001/api/favorites/${playlist.id}`,
+          { withCredentials: true }
+        );
+        setFavorites(favorites.filter((fav) => fav.playlist_id !== playlist.id));
+      } else {
+        const newFav = {
+          playlist_id: playlist.id,
+          playlist_name: playlist.name,
+          playlist_image: playlist.images[0]?.url,
+        };
+        await axios.post("http://127.0.0.1:3001/api/favorites", newFav, {
+          withCredentials: true,
+        });
+        // Optimistically add to state (id will be missing but that's ok for now)
+        setFavorites([...favorites, newFav]);
+      }
+    } catch (error) {
+      console.error("Error toggling favorite:", error);
+      alert("Failed to update favorites");
+    }
+  };
+
+  const handlePlaylistClick = (playlist) => {
+    setSelectedPlaylist(playlist);
+    setView("details");
+  };
 
   if (loading) {
     return <div>Loading...</div>;
@@ -39,22 +74,51 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        {playlists && playlists.length > 0 ? (
+        {view === "details" && selectedPlaylist ? (
+          <PlaylistDetails
+            playlist={selectedPlaylist}
+            onBack={() => setView("list")}
+          />
+        ) : playlists ? (
           <div>
             <h1>Twoje Playlisty Spotify</h1>
-            <ul>
-              {playlists.map((playlist) => (
-                <li key={playlist.id}>
-                  {playlist.name} {playlist.tracks.total}
-                  <img
-                    src={playlist.images[0]?.url}
-                    alt={playlist.name}
-                    width="100"
-                    height="100"
-                  />
-                </li>
-              ))}
-            </ul>
+            <div className="playlists-grid">
+              {playlists.map((playlist) => {
+                const isFav = favorites.some(
+                  (fav) => fav.playlist_id === playlist.id
+                );
+                return (
+                  <div key={playlist.id} className="playlist-card">
+                    <div
+                      className="playlist-image-container"
+                      onClick={() => handlePlaylistClick(playlist)}
+                    >
+                      <img
+                        src={playlist.images[0]?.url}
+                        alt={playlist.name}
+                        className="playlist-image"
+                      />
+                      <div className="playlist-overlay">
+                        <span>View Tracks</span>
+                      </div>
+                    </div>
+                    <div className="playlist-info">
+                      <h3>{playlist.name}</h3>
+                      <p>{playlist.tracks.total} tracks</p>
+                      <button
+                        className={`fav-button ${isFav ? "active" : ""}`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(playlist);
+                        }}
+                      >
+                        {isFav ? "❤️" : "🤍"}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         ) : (
           <div>
