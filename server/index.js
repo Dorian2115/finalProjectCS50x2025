@@ -31,7 +31,7 @@ app.get("/login", (request, response) => {
     response_type: "code",
     redirect_uri: process.env.REDIRECT_URI,
     scope:
-      "user-read-private user-read-email playlist-read-private user-top-read",
+      "user-read-private user-read-email playlist-read-private user-top-read user-read-playback-state user-read-currently-playing user-read-recently-played user-read-playback-position",
   };
 
   const authUrl =
@@ -133,26 +133,43 @@ app.get("/api/user/information", async (request, response) => {
   }
 });
 
-app.get("/api/user/top-artists", async (request, response) => {
+app.get("/api/user/topArtists", async (request, response) => {
   try {
     const access_token = request.cookies.spotify_access_token;
     console.log(access_token);
 
-    const topTracksResponse = await axios.get(
+    const topArtistsResponse = await axios.get(
       "https://api.spotify.com/v1/me/top/artists",
       {
         headers: { Authorization: `Bearer ${access_token}` },
       }
     );
 
-    const topTracksData = {
-      ...topTracksResponse.data,
+    const topArtistsData = {
+      ...topArtistsResponse.data,
     };
 
-    response.json(topTracksData);
+    response.json(topArtistsData);
   } catch (error) {
     // console.error(error);
     response.status(500).json({ error: "Failed to get top artists" });
+  }
+});
+
+app.get("/api/user/topTracks", async (request, response) => {
+  try {
+    const access_token = request.cookies.spotify_access_token;
+
+    const topTracksResponse = await axios.get(
+      "https://api.spotify.com/v1/me/top/tracks",
+      {
+        headers: { Authorization: `Bearer ${access_token}` },
+      }
+    );
+
+    response.json(topTracksResponse.data);
+  } catch (error) {
+    response.status(500).json({ error: "Failed to get top tracks" });
   }
 });
 

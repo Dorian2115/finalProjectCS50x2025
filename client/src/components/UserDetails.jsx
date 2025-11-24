@@ -9,17 +9,21 @@ function UserDetails() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const [userInfoRes, topArtistsRes] = await Promise.all([
+        const [userInfoRes, topArtistsRes, topTracksRes] = await Promise.all([
           axios.get("http://127.0.0.1:3001/api/user/information", {
             withCredentials: true,
           }),
-          axios.get("http://127.0.0.1:3001/api/user/top-artists", {
+          axios.get("http://127.0.0.1:3001/api/user/topArtists", {
+            withCredentials: true,
+          }),
+          axios.get("http://127.0.0.1:3001/api/user/topTracks", {
             withCredentials: true,
           }),
         ]);
         setUser({
           ...userInfoRes.data,
           top_artists: topArtistsRes.data.items,
+          top_tracks: topTracksRes.data.items,
         });
       } catch (error) {
         setError(error);
@@ -39,21 +43,67 @@ function UserDetails() {
   }
 
   return (
-    <div>
-      <p>Imię: {user.display_name}</p>
-      <p>
-        Avatar: <img src={user.images[0]?.url} alt="Avatar" width="100" />
-      </p>
-      <h3>Ulubieni Artyści</h3>
-      {user.top_artists && user.top_artists.length > 0 ? (
-        <ul>
-          {user.top_artists.slice(0, 5).map((artist) => (
-            <li key={artist.id}>{artist.name}</li>
-          ))}
-        </ul>
-      ) : (
-        <p>Brak danych o ulubionych artystach.</p>
-      )}
+    <div className="user-profile">
+      <div className="profile-header">
+        <img
+          src={user.images[0]?.url}
+          alt="Avatar"
+          className="profile-avatar"
+        />
+        <div className="profile-info">
+          <h2>{user.display_name}</h2>
+          <p className="profile-email">{user.email}</p>
+        </div>
+      </div>
+
+      <div className="profile-sections">
+        <div className="profile-section">
+          <h3 className="section-title">Top Artists</h3>
+          {user.top_artists && user.top_artists.length > 0 ? (
+            <ul className="top-artists-list">
+              {user.top_artists.slice(0, 10).map((artist, index) => (
+                <li key={artist.id} className="artist-item">
+                  <span className="artist-rank">#{index + 1}</span>
+                  <span className="artist-name">{artist.name}</span>
+                  <span className="artist-image">
+                    <img src={artist.images[0]?.url} alt={artist.name} />
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p style={{ color: "var(--secondary-text)" }}>
+              Brak danych o ulubionych artystach.
+            </p>
+          )}
+        </div>
+
+        <div className="profile-section">
+          <h3 className="section-title">Top Tracks</h3>
+          {user.top_tracks && user.top_tracks.length > 0 ? (
+            <ul className="top-artists-list">
+              {user.top_tracks.slice(0, 10).map((track, index) => (
+                <li key={track.id} className="artist-item">
+                  <span className="artist-rank">#{index + 1}</span>
+                  <div>
+                    <div className="artist-name">{track.name}</div>
+                    <div className="track-artist-text">
+                      {track.artists.map((a) => a.name).join(", ")}
+                    </div>
+                  </div>
+                  <span className="artist-image">
+                    <img src={track.album.images[2]?.url} alt={track.name} />
+                  </span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p style={{ color: "var(--secondary-text)" }}>
+              Brak danych o ulubionych utworach.
+            </p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
