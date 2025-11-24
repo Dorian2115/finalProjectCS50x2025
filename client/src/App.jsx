@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import "./App.css";
 import PlaylistDetails from "./components/PlaylistDetails";
+import UserDetails from "./components/UserDetails";
 
 function App() {
   const [playlists, setPlaylists] = useState(null);
@@ -43,7 +44,9 @@ function App() {
           `http://127.0.0.1:3001/api/favorites/${playlist.id}`,
           { withCredentials: true }
         );
-        setFavorites(favorites.filter((fav) => fav.playlist_id !== playlist.id));
+        setFavorites(
+          favorites.filter((fav) => fav.playlist_id !== playlist.id)
+        );
       } else {
         const newFav = {
           playlist_id: playlist.id,
@@ -79,9 +82,33 @@ function App() {
             playlist={selectedPlaylist}
             onBack={() => setView("list")}
           />
+        ) : view === "profile" ? (
+          <div>
+            <button onClick={() => setView("list")} className="back-button">
+              &larr; Back to Playlists
+            </button>
+            <UserDetails />
+          </div>
         ) : playlists ? (
           <div>
-            <h1>Twoje Playlisty Spotify</h1>
+            <div className="header-content">
+              <h1>Twoje Playlisty Spotify</h1>
+              <div>
+                <button
+                  className="logout-button"
+                  style={{ marginRight: "10px" }}
+                  onClick={() => setView("profile")}
+                >
+                  Profil
+                </button>
+                <a
+                  href="http://127.0.0.1:3001/logout"
+                  className="logout-button"
+                >
+                  Wyloguj
+                </a>
+              </div>
+            </div>
             <div className="playlists-grid">
               {playlists.map((playlist) => {
                 const isFav = favorites.some(

@@ -5,7 +5,9 @@ db.serialize(() => {
   db.run(
     "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, spotify_access_token TEXT, spotify_refresh_token TEXT)"
   );
+  db.run(
+    "CREATE TABLE IF NOT EXISTS favorites (id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, playlist_id TEXT, FOREIGN KEY (user_id) REFERENCES users (id))"
+  );
 });
-db.close();
 
 module.exports = db;
