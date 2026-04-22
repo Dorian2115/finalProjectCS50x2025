@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+
 function UserDetails() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -10,13 +12,13 @@ function UserDetails() {
     const fetchUser = async () => {
       try {
         const [userInfoRes, topArtistsRes, topTracksRes] = await Promise.all([
-          axios.get("http://127.0.0.1:3001/api/user/information", {
+          axios.get("${API_BASE}/api/user/information", {
             withCredentials: true,
           }),
-          axios.get("http://127.0.0.1:3001/api/user/topArtists", {
+          axios.get("${API_BASE}/api/user/topArtists", {
             withCredentials: true,
           }),
-          axios.get("http://127.0.0.1:3001/api/user/topTracks", {
+          axios.get("${API_BASE}/api/user/topTracks", {
             withCredentials: true,
           }),
         ]);
@@ -59,7 +61,7 @@ function UserDetails() {
       <div className="profile-sections">
         <div className="profile-section">
           <h3 className="section-title">Top Artists</h3>
-          {user.top_artists && user.top_artists.length > 0 ? (
+          {user.top_artists && user.top_artists.length > 0 ?
             <ul className="top-artists-list">
               {user.top_artists.slice(0, 10).map((artist, index) => (
                 <li key={artist.id} className="artist-item">
@@ -71,16 +73,15 @@ function UserDetails() {
                 </li>
               ))}
             </ul>
-          ) : (
-            <p style={{ color: "var(--secondary-text)" }}>
+          : <p style={{ color: "var(--secondary-text)" }}>
               Brak danych o ulubionych artystach.
             </p>
-          )}
+          }
         </div>
 
         <div className="profile-section">
           <h3 className="section-title">Top Tracks</h3>
-          {user.top_tracks && user.top_tracks.length > 0 ? (
+          {user.top_tracks && user.top_tracks.length > 0 ?
             <ul className="top-artists-list">
               {user.top_tracks.slice(0, 10).map((track, index) => (
                 <li key={track.id} className="artist-item">
@@ -97,11 +98,10 @@ function UserDetails() {
                 </li>
               ))}
             </ul>
-          ) : (
-            <p style={{ color: "var(--secondary-text)" }}>
+          : <p style={{ color: "var(--secondary-text)" }}>
               Brak danych o ulubionych utworach.
             </p>
-          )}
+          }
         </div>
       </div>
     </div>
