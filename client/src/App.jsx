@@ -11,8 +11,7 @@ function App() {
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [view, setView] = useState("list");
 
-  const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
-  const API_LOGIN = import.meta.env.VITE_API_URL || "http://localhost:3001";
+  const API_BASE = process.env.API_BASE;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,7 +29,6 @@ function App() {
         setFavorites(favoritesRes.data);
       } catch (error) {
         console.error("Error fetching data:", error);
-        // If 401, it means not logged in, which is fine
       } finally {
         setLoading(false);
       }
