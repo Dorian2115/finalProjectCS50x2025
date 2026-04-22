@@ -10,7 +10,6 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [view, setView] = useState("list");
-
   const API_BASE = process.env.API_BASE;
 
   useEffect(() => {
@@ -146,7 +145,7 @@ function App() {
         : <div>
             <h1>Witaj w Aplikacji do Przeglądania Playlist</h1>
             <p>Aby kontynuować, połącz swoje konto Spotify.</p>
-            <a href={`${API_LOGIN}/login`} className="login-button">
+            <a href={`${API_BASE}/login`} className="login-button">
               Zaloguj się przez Spotify
             </a>
           </div>
