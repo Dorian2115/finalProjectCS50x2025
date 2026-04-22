@@ -3,6 +3,11 @@ import axios from "axios";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
+function getAuthHeaders() {
+  const token = localStorage.getItem("spotify_access_token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 function UserDetails() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -13,13 +18,13 @@ function UserDetails() {
       try {
         const [userInfoRes, topArtistsRes, topTracksRes] = await Promise.all([
           axios.get(`${API_BASE}/api/user/information`, {
-            withCredentials: true,
+            headers: getAuthHeaders(),
           }),
           axios.get(`${API_BASE}/api/user/topArtists`, {
-            withCredentials: true,
+            headers: getAuthHeaders(),
           }),
           axios.get(`${API_BASE}/api/user/topTracks`, {
-            withCredentials: true,
+            headers: getAuthHeaders(),
           }),
         ]);
         setUser({

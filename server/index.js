@@ -3,7 +3,6 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const querystring = require("querystring");
 const axios = require("axios");
-const cookieParser = require("cookie-parser");
 const db = require("./database");
 
 dotenv.config();
@@ -20,11 +19,19 @@ app.use(
   }),
 );
 
-app.use(cookieParser());
 app.use(express.json());
 app.get("/", (request, response) => {
   response.send("Server is running");
 });
+
+// Helper: extract access_token from Authorization header
+function getAccessToken(request) {
+  const authHeader = request.headers.authorization;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    return authHeader.split(" ")[1];
+  }
+  return null;
+}
 
 app.get("/login", (request, response) => {
   let queryParams = {
@@ -42,14 +49,17 @@ app.get("/login", (request, response) => {
   response.redirect(authUrl);
 });
 
-app.get("/api/refresh", async (request, response) => {
+app.post("/api/refresh", async (request, response) => {
   try {
-    const refreshToken = request.cookies.spotify_refresh_token;
+    const { refresh_token } = request.body;
+    if (!refresh_token) {
+      return response.status(400).json({ error: "refresh_token is required" });
+    }
     const tokenResponse = await axios({
       method: "post",
       url: "https://accounts.spotify.com/api/token",
       data: querystring.stringify({
-        refresh_token: refreshToken,
+        refresh_token: refresh_token,
         grant_type: "refresh_token",
       }),
       headers: {
@@ -61,7 +71,8 @@ app.get("/api/refresh", async (request, response) => {
           ).toString("base64"),
       },
     });
-    const { data: userResponse } = await axios.get(
+
+    const { data: userData } = await axios.get(
       "https://api.spotify.com/v1/me",
       {
         headers: {
@@ -74,62 +85,26 @@ app.get("/api/refresh", async (request, response) => {
       const stmt = db.prepare(
         `INSERT OR IGNORE INTO users (spotify_id, email, display_name) VALUES (?, ?, ?)`,
       );
-      stmt.run(
-        userResponse.data.id,
-        userResponse.data.email,
-        userResponse.data.display_name,
-      );
+      stmt.run(userData.id, userData.email, userData.display_name);
     } catch (error) {
       console.error("Error saving user:", error);
     }
 
-    response.cookie("spotify_user_id", userResponse.data.id, {
-      httpOnly: true,
-      sameSite: "none",
-      secure: true,
-      maxAge: tokenResponse.data.expires_in * 1000,
+    response.json({
+      access_token: tokenResponse.data.access_token,
+      refresh_token: tokenResponse.data.refresh_token || refresh_token,
+      expires_in: tokenResponse.data.expires_in,
+      user_id: userData.id,
     });
-
-    response.cookie("spotify_access_token", tokenResponse.data.access_token, {
-      httpOnly: true,
-      sameSite: "none",
-      secure: true,
-      maxAge: tokenResponse.data.expires_in * 1000,
-    });
-    response.cookie("spotify_refresh_token", tokenResponse.data.refresh_token, {
-      httpOnly: true,
-      sameSite: "none",
-      secure: true,
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
-    response.redirect(CLIENT_URL);
   } catch (error) {
     console.error(error);
     response.status(500).json({ error: "Failed to refresh token" });
   }
 });
 
-app.get("/logout", async (request, response) => {
-  try {
-    response.clearCookie("spotify_access_token", {
-      sameSite: "none",
-      secure: true,
-    });
-    response.clearCookie("spotify_refresh_token", {
-      sameSite: "none",
-      secure: true,
-    });
-    response.clearCookie("spotify_user_id", { sameSite: "none", secure: true });
-    response.redirect(CLIENT_URL);
-  } catch (error) {
-    console.error(error);
-    response.status(500).json({ error: "Failed to logout" });
-  }
-});
-
 app.get("/api/user/information", async (request, response) => {
   try {
-    const access_token = request.cookies.spotify_access_token;
+    const access_token = getAccessToken(request);
 
     const userResponse = await axios.get("https://api.spotify.com/v1/me", {
       headers: { Authorization: `Bearer ${access_token}` },
@@ -148,8 +123,7 @@ app.get("/api/user/information", async (request, response) => {
 
 app.get("/api/user/topArtists", async (request, response) => {
   try {
-    const access_token = request.cookies.spotify_access_token;
-    console.log(access_token);
+    const access_token = getAccessToken(request);
 
     const topArtistsResponse = await axios.get(
       "https://api.spotify.com/v1/me/top/artists",
@@ -164,14 +138,13 @@ app.get("/api/user/topArtists", async (request, response) => {
 
     response.json(topArtistsData);
   } catch (error) {
-    // console.error(error);
     response.status(500).json({ error: "Failed to get top artists" });
   }
 });
 
 app.get("/api/user/topTracks", async (request, response) => {
   try {
-    const access_token = request.cookies.spotify_access_token;
+    const access_token = getAccessToken(request);
 
     const topTracksResponse = await axios.get(
       "https://api.spotify.com/v1/me/top/tracks",
@@ -208,21 +181,32 @@ app.get("/callback", async (request, response) => {
       },
     });
 
-    response.cookie("spotify_access_token", tokenResponse.data.access_token, {
-      httpOnly: true,
-      sameSite: "none",
-      secure: true,
-      maxAge: tokenResponse.data.expires_in * 1000,
+    // Save user to database
+    try {
+      const { data: userData } = await axios.get(
+        "https://api.spotify.com/v1/me",
+        {
+          headers: {
+            Authorization: `Bearer ${tokenResponse.data.access_token}`,
+          },
+        },
+      );
+      const stmt = db.prepare(
+        `INSERT OR IGNORE INTO users (spotify_id, email, display_name) VALUES (?, ?, ?)`,
+      );
+      stmt.run(userData.id, userData.email, userData.display_name);
+    } catch (dbError) {
+      console.error("Error saving user:", dbError);
+    }
+
+    // Redirect to client with tokens in URL hash (hash is not sent to server)
+    const params = querystring.stringify({
+      access_token: tokenResponse.data.access_token,
+      refresh_token: tokenResponse.data.refresh_token,
+      expires_in: tokenResponse.data.expires_in,
     });
 
-    response.cookie("spotify_refresh_token", tokenResponse.data.refresh_token, {
-      httpOnly: true,
-      sameSite: "none",
-      secure: true,
-      maxAge: 30 * 24 * 60 * 60 * 1000,
-    });
-
-    response.redirect(CLIENT_URL);
+    response.redirect(`${CLIENT_URL}/#${params}`);
   } catch (error) {
     console.error(error);
     response.redirect(`${CLIENT_URL}?error=invalid_token`);
@@ -232,7 +216,7 @@ app.get("/callback", async (request, response) => {
 app.get("/api/playlists", async (request, response) => {
   console.log("Pobieranie playlist");
   try {
-    const access_token = request.cookies.spotify_access_token;
+    const access_token = getAccessToken(request);
     const playlistsResponse = await axios.get(
       "https://api.spotify.com/v1/me/playlists",
       {
@@ -251,11 +235,12 @@ app.get("/api/playlists", async (request, response) => {
 
 app.get("/api/playlists/:id", async (request, response) => {
   try {
+    const access_token = getAccessToken(request);
     const playlist = await axios.get(
       `https://api.spotify.com/v1/playlists/${request.params.id}`,
       {
         headers: {
-          Authorization: `Bearer ${request.cookies.spotify_access_token}`,
+          Authorization: `Bearer ${access_token}`,
         },
       },
     );
@@ -269,7 +254,7 @@ app.get("/api/playlists/:id", async (request, response) => {
 app.get("/api/playlists/:id/tracks", async (request, response) => {
   try {
     const playlistId = request.params.id;
-    const access_token = request.cookies.spotify_access_token;
+    const access_token = getAccessToken(request);
     const tracksResponse = await axios.get(
       `https://api.spotify.com/v1/playlists/${playlistId}/tracks`,
       {
@@ -290,7 +275,7 @@ app.get("/api/tracks/:id", async (request, response) => {
   console.log("Pobieranie utworu");
   try {
     const trackId = request.params.id;
-    const access_token = request.cookies.spotify_access_token;
+    const access_token = getAccessToken(request);
     const tracksResponse = await axios.get(
       `https://api.spotify.com/v1/tracks/${trackId}`,
       {
@@ -317,14 +302,15 @@ app.get("/api/favorites", (request, response) => {
   }
 });
 
-//Nie działa wczytywanie user_id z ciasteczka, a raczej ustawienie do ciasteczka user_id
 app.post("/api/favorites", (request, response) => {
   try {
-    const { playlist_id } = request.body;
-    const user_id = request.cookies.spotify_user_id;
+    const { playlist_id, user_id } = request.body;
     const user = db
       .prepare("SELECT id FROM users WHERE spotify_id = ?")
       .get(user_id);
+    if (!user) {
+      return response.status(404).json({ error: "User not found" });
+    }
     const result = db
       .prepare("INSERT INTO favorites (user_id, playlist_id) VALUES (?, ?)")
       .run(user.id, playlist_id);
@@ -342,11 +328,14 @@ app.delete("/api/favorites/:id", (request, response) => {
   console.log("Usuwanie playlisty z ulubionych");
   try {
     const { id } = request.params;
-    const user_id = request.cookies.spotify_user_id;
+    const { user_id } = request.body;
 
     const user = db
       .prepare("SELECT id FROM users WHERE spotify_id = ?")
       .get(user_id);
+    if (!user) {
+      return response.status(404).json({ error: "User not found" });
+    }
     db.prepare(
       "DELETE FROM favorites WHERE playlist_id = ? AND user_id = ?",
     ).run(id, user.id);

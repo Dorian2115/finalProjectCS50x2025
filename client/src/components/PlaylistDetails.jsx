@@ -3,6 +3,11 @@ import axios from "axios";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
+function getAuthHeaders() {
+  const token = localStorage.getItem("spotify_access_token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 function PlaylistDetails({ playlist, onBack }) {
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -12,7 +17,7 @@ function PlaylistDetails({ playlist, onBack }) {
       try {
         const response = await axios.get(
           `${API_BASE}/api/playlists/${playlist.id}/tracks`,
-          { withCredentials: true },
+          { headers: getAuthHeaders() },
         );
         setTracks(response.data.items);
       } catch (error) {
