@@ -13,10 +13,10 @@ const PORT = process.env.PORT;
 
 app.use(
   cors({
-    origin: "http://127.0.0.1:5173",
+    origin: "https://final-project-cs-50x2025.vercel.app",
     credentials: true,
     sameSite: "lax",
-  })
+  }),
 );
 
 app.use(cookieParser());
@@ -56,7 +56,7 @@ app.get("/api/refresh", async (request, response) => {
         Authorization:
           "Basic " +
           Buffer.from(
-            process.env.CLIENT_ID + ":" + process.env.CLIENT_SECRET
+            process.env.CLIENT_ID + ":" + process.env.CLIENT_SECRET,
           ).toString("base64"),
       },
     });
@@ -66,7 +66,7 @@ app.get("/api/refresh", async (request, response) => {
         headers: {
           Authorization: `Bearer ${tokenResponse.data.access_token}`,
         },
-      }
+      },
     );
 
     try {
@@ -76,7 +76,7 @@ app.get("/api/refresh", async (request, response) => {
           userResponse.data.id,
           userResponse.data.email,
           userResponse.data.display_name,
-        ]
+        ],
       );
     } catch (error) {
       console.error("Error saving user:", error);
@@ -95,7 +95,7 @@ app.get("/api/refresh", async (request, response) => {
       httpOnly: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
-    response.redirect("http://127.0.0.1:5173");
+    response.redirect("https://final-project-cs-50x2025.vercel.app");
   } catch (error) {
     console.error(error);
     response.status(500).json({ error: "Failed to refresh token" });
@@ -107,7 +107,7 @@ app.get("/logout", async (request, response) => {
     response.clearCookie("spotify_access_token");
     response.clearCookie("spotify_refresh_token");
     response.clearCookie("spotify_user_id");
-    response.redirect("http://127.0.0.1:5173");
+    response.redirect("https://final-project-cs-50x2025.vercel.app");
   } catch (error) {
     console.error(error);
     response.status(500).json({ error: "Failed to logout" });
@@ -142,7 +142,7 @@ app.get("/api/user/topArtists", async (request, response) => {
       "https://api.spotify.com/v1/me/top/artists",
       {
         headers: { Authorization: `Bearer ${access_token}` },
-      }
+      },
     );
 
     const topArtistsData = {
@@ -164,7 +164,7 @@ app.get("/api/user/topTracks", async (request, response) => {
       "https://api.spotify.com/v1/me/top/tracks",
       {
         headers: { Authorization: `Bearer ${access_token}` },
-      }
+      },
     );
 
     response.json(topTracksResponse.data);
@@ -190,7 +190,7 @@ app.get("/callback", async (request, response) => {
         Authorization:
           "Basic " +
           Buffer.from(
-            process.env.CLIENT_ID + ":" + process.env.CLIENT_SECRET
+            process.env.CLIENT_ID + ":" + process.env.CLIENT_SECRET,
           ).toString("base64"),
       },
     });
@@ -205,10 +205,12 @@ app.get("/callback", async (request, response) => {
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
-    response.redirect("http://127.0.0.1:5173");
+    response.redirect("https://final-project-cs-50x2025.vercel.app");
   } catch (error) {
     console.error(error);
-    response.redirect("http://127.0.0.1:5173?error=invalid_token");
+    response.redirect(
+      "https://final-project-cs-50x2025.vercel.app?error=invalid_token",
+    );
   }
 });
 
@@ -222,7 +224,7 @@ app.get("/api/playlists", async (request, response) => {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
-      }
+      },
     );
     response.json(playlistsResponse.data);
     console.log("Poprawnie pobrano playlisty");
@@ -240,7 +242,7 @@ app.get("/api/playlists/:id", async (request, response) => {
         headers: {
           Authorization: `Bearer ${request.cookies.spotify_access_token}`,
         },
-      }
+      },
     );
     response.json(playlist.data);
   } catch (error) {
@@ -259,7 +261,7 @@ app.get("/api/playlists/:id/tracks", async (request, response) => {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
-      }
+      },
     );
     console.log(`Pobrano dane playlisty ${playlistId}`);
     response.json(tracksResponse.data);
@@ -280,7 +282,7 @@ app.get("/api/tracks/:id", async (request, response) => {
         headers: {
           Authorization: `Bearer ${access_token}`,
         },
-      }
+      },
     );
     console.log(`Pobrano dane utworu ${trackId}`);
     response.json(tracksResponse.data);

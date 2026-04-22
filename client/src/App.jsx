@@ -11,14 +11,16 @@ function App() {
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [view, setView] = useState("list"); // 'list' or 'details'
 
+  const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [playlistsRes, favoritesRes] = await Promise.all([
-          axios.get("http://127.0.0.1:3001/api/playlists", {
+          axios.get(`${API_BASE}/playlists`, {
             withCredentials: true,
           }),
-          axios.get("http://127.0.0.1:3001/api/favorites", {
+          axios.get(`${API_BASE}/favorites`, {
             withCredentials: true,
           }),
         ]);
@@ -40,12 +42,11 @@ function App() {
 
     try {
       if (isFav) {
-        await axios.delete(
-          `http://127.0.0.1:3001/api/favorites/${playlist.id}`,
-          { withCredentials: true }
-        );
+        await axios.delete(`${API_BASE}/favorites/${playlist.id}`, {
+          withCredentials: true,
+        });
         setFavorites(
-          favorites.filter((fav) => fav.playlist_id !== playlist.id)
+          favorites.filter((fav) => fav.playlist_id !== playlist.id),
         );
       } else {
         const newFav = {
@@ -53,10 +54,9 @@ function App() {
           playlist_name: playlist.name,
           playlist_image: playlist.images[0]?.url,
         };
-        await axios.post("http://127.0.0.1:3001/api/favorites", newFav, {
+        await axios.post(`${API_BASE}/favorites`, newFav, {
           withCredentials: true,
         });
-        // Optimistically add to state (id will be missing but that's ok for now)
         setFavorites([...favorites, newFav]);
       }
     } catch (error) {
@@ -77,19 +77,19 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        {view === "details" && selectedPlaylist ? (
+        {view === "details" && selectedPlaylist ?
           <PlaylistDetails
             playlist={selectedPlaylist}
             onBack={() => setView("list")}
           />
-        ) : view === "profile" ? (
+        : view === "profile" ?
           <div>
             <button onClick={() => setView("list")} className="back-button">
               &larr; Back to Playlists
             </button>
             <UserDetails />
           </div>
-        ) : playlists ? (
+        : playlists ?
           <div>
             <div className="header-content">
               <h1>Twoje Playlisty Spotify</h1>
@@ -101,10 +101,7 @@ function App() {
                 >
                   Profil
                 </button>
-                <a
-                  href="http://127.0.0.1:3001/logout"
-                  className="logout-button"
-                >
+                <a href="${API_BASE}/logout" className="logout-button">
                   Wyloguj
                 </a>
               </div>
@@ -112,7 +109,7 @@ function App() {
             <div className="playlists-grid">
               {playlists.map((playlist) => {
                 const isFav = favorites.some(
-                  (fav) => fav.playlist_id === playlist.id
+                  (fav) => fav.playlist_id === playlist.id,
                 );
                 return (
                   <div key={playlist.id} className="playlist-card">
@@ -147,15 +144,14 @@ function App() {
               })}
             </div>
           </div>
-        ) : (
-          <div>
+        : <div>
             <h1>Witaj w Aplikacji do Przeglądania Playlist</h1>
             <p>Aby kontynuować, połącz swoje konto Spotify.</p>
-            <a href="http://127.0.0.1:3001/login" className="login-button">
+            <a href="${API_BASE}/login" className="login-button">
               Zaloguj się przez Spotify
             </a>
           </div>
-        )}
+        }
       </header>
     </div>
   );
