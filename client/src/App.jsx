@@ -4,22 +4,23 @@ import "./App.css";
 import PlaylistDetails from "./components/PlaylistDetails";
 import UserDetails from "./components/UserDetails";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
 function App() {
   const [playlists, setPlaylists] = useState(null);
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [view, setView] = useState("list");
-  const API_BASE = process.env.API_BASE;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [playlistsRes, favoritesRes] = await Promise.all([
-          axios.get(`${API_BASE}/playlists`, {
+          axios.get(`${API_BASE}/api/playlists`, {
             withCredentials: true,
           }),
-          axios.get(`${API_BASE}/favorites`, {
+          axios.get(`${API_BASE}/api/favorites`, {
             withCredentials: true,
           }),
         ]);
@@ -40,7 +41,7 @@ function App() {
 
     try {
       if (isFav) {
-        await axios.delete(`${API_BASE}/favorites/${playlist.id}`, {
+        await axios.delete(`${API_BASE}/api/favorites/${playlist.id}`, {
           withCredentials: true,
         });
         setFavorites(
@@ -52,7 +53,7 @@ function App() {
           playlist_name: playlist.name,
           playlist_image: playlist.images[0]?.url,
         };
-        await axios.post(`${API_BASE}/favorites`, newFav, {
+        await axios.post(`${API_BASE}/api/favorites`, newFav, {
           withCredentials: true,
         });
         setFavorites([...favorites, newFav]);

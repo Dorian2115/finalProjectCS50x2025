@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 function PlaylistDetails({ playlist, onBack }) {
   const [tracks, setTracks] = useState([]);
@@ -11,7 +11,7 @@ function PlaylistDetails({ playlist, onBack }) {
     const fetchTracks = async () => {
       try {
         const response = await axios.get(
-          `${API_BASE}/playlists/${playlist.id}/tracks`,
+          `${API_BASE}/api/playlists/${playlist.id}/tracks`,
           { withCredentials: true },
         );
         setTracks(response.data.items);

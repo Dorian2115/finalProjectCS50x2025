@@ -9,14 +9,14 @@ const db = require("./database");
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT;
-const API_BASE = process.env.API_BASE;
+const PORT = process.env.PORT || 3001;
+const CLIENT_URL = process.env.CLIENT_URL;
+const REDIRECT_URI = process.env.REDIRECT_URI;
 
 app.use(
   cors({
-    origin: API_BASE,
+    origin: CLIENT_URL,
     credentials: true,
-    sameSite: "lax",
   }),
 );
 
@@ -30,7 +30,7 @@ app.get("/login", (request, response) => {
   let queryParams = {
     client_id: process.env.CLIENT_ID,
     response_type: "code",
-    redirect_uri: `${API_BASE}/callback`,
+    redirect_uri: REDIRECT_URI,
     scope:
       "user-read-private user-read-email playlist-read-private user-top-read user-read-playback-state user-read-currently-playing user-read-recently-played user-read-playback-position",
   };
@@ -72,7 +72,7 @@ app.get("/api/refresh", async (request, response) => {
 
     try {
       const stmt = db.prepare(
-        `INSERT OR IGNORE INTO users (spotify_id, email, display_name) VALUES (?, ?, ?)`
+        `INSERT OR IGNORE INTO users (spotify_id, email, display_name) VALUES (?, ?, ?)`,
       );
       stmt.run(
         userResponse.data.id,
@@ -85,18 +85,24 @@ app.get("/api/refresh", async (request, response) => {
 
     response.cookie("spotify_user_id", userResponse.data.id, {
       httpOnly: true,
+      sameSite: "none",
+      secure: true,
       maxAge: tokenResponse.data.expires_in * 1000,
     });
 
     response.cookie("spotify_access_token", tokenResponse.data.access_token, {
       httpOnly: true,
+      sameSite: "none",
+      secure: true,
       maxAge: tokenResponse.data.expires_in * 1000,
     });
     response.cookie("spotify_refresh_token", tokenResponse.data.refresh_token, {
       httpOnly: true,
+      sameSite: "none",
+      secure: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
-    response.redirect("https://final-project-cs-50x2025.vercel.app");
+    response.redirect(CLIENT_URL);
   } catch (error) {
     console.error(error);
     response.status(500).json({ error: "Failed to refresh token" });
@@ -105,10 +111,10 @@ app.get("/api/refresh", async (request, response) => {
 
 app.get("/logout", async (request, response) => {
   try {
-    response.clearCookie("spotify_access_token");
-    response.clearCookie("spotify_refresh_token");
-    response.clearCookie("spotify_user_id");
-    response.redirect("https://final-project-cs-50x2025.vercel.app");
+    response.clearCookie("spotify_access_token", { sameSite: "none", secure: true });
+    response.clearCookie("spotify_refresh_token", { sameSite: "none", secure: true });
+    response.clearCookie("spotify_user_id", { sameSite: "none", secure: true });
+    response.redirect(CLIENT_URL);
   } catch (error) {
     console.error(error);
     response.status(500).json({ error: "Failed to logout" });
@@ -198,19 +204,23 @@ app.get("/callback", async (request, response) => {
 
     response.cookie("spotify_access_token", tokenResponse.data.access_token, {
       httpOnly: true,
+      sameSite: "none",
+      secure: true,
       maxAge: tokenResponse.data.expires_in * 1000,
     });
 
     response.cookie("spotify_refresh_token", tokenResponse.data.refresh_token, {
       httpOnly: true,
+      sameSite: "none",
+      secure: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
-    response.redirect("https://final-project-cs-50x2025.vercel.app");
+    response.redirect(CLIENT_URL);
   } catch (error) {
     console.error(error);
     response.redirect(
-      "https://final-project-cs-50x2025.vercel.app?error=invalid_token",
+      `${CLIENT_URL}?error=invalid_token`,
     );
   }
 });
@@ -308,14 +318,16 @@ app.post("/api/favorites", (request, response) => {
   try {
     const { playlist_id } = request.body;
     const user_id = request.cookies.spotify_user_id;
-    const user = db.prepare("SELECT id FROM users WHERE spotify_id = ?").get(user_id);
-    const result = db.prepare("INSERT INTO favorites (user_id, playlist_id) VALUES (?, ?)").run(
-      user.id,
-      playlist_id,
-    );
-    response
-      .status(200)
-      .json({ message: "Playlist added to favorites", id: result.lastInsertRowid });
+    const user = db
+      .prepare("SELECT id FROM users WHERE spotify_id = ?")
+      .get(user_id);
+    const result = db
+      .prepare("INSERT INTO favorites (user_id, playlist_id) VALUES (?, ?)")
+      .run(user.id, playlist_id);
+    response.status(200).json({
+      message: "Playlist added to favorites",
+      id: result.lastInsertRowid,
+    });
   } catch (error) {
     console.error(error);
     response.status(500).json({ error: "Failed to add favorite" });
@@ -328,11 +340,12 @@ app.delete("/api/favorites/:id", (request, response) => {
     const { id } = request.params;
     const user_id = request.cookies.spotify_user_id;
 
-    const user = db.prepare("SELECT id FROM users WHERE spotify_id = ?").get(user_id);
-    db.prepare("DELETE FROM favorites WHERE playlist_id = ? AND user_id = ?").run(
-      id,
-      user.id,
-    );
+    const user = db
+      .prepare("SELECT id FROM users WHERE spotify_id = ?")
+      .get(user_id);
+    db.prepare(
+      "DELETE FROM favorites WHERE playlist_id = ? AND user_id = ?",
+    ).run(id, user.id);
     response.status(200).json({ message: "Playlist removed from favorites" });
   } catch (error) {
     console.error(error);
