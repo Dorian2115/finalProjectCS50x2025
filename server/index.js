@@ -71,13 +71,13 @@ app.get("/api/refresh", async (request, response) => {
     );
 
     try {
-      db.run(
-        `INSERT OR IGNORE INTO users (spotify_id, email, display_name) VALUES (?, ?, ?)`,
-        [
-          userResponse.data.id,
-          userResponse.data.email,
-          userResponse.data.display_name,
-        ],
+      const stmt = db.prepare(
+        `INSERT OR IGNORE INTO users (spotify_id, email, display_name) VALUES (?, ?, ?)`
+      );
+      stmt.run(
+        userResponse.data.id,
+        userResponse.data.email,
+        userResponse.data.display_name,
       );
     } catch (error) {
       console.error("Error saving user:", error);
@@ -294,13 +294,13 @@ app.get("/api/tracks/:id", async (request, response) => {
 });
 
 app.get("/api/favorites", (request, response) => {
-  db.all("SELECT * FROM favorites", (err, rows) => {
-    if (err) {
-      console.error(err);
-      return response.status(500).json({ error: "Failed to fetch favorites" });
-    }
+  try {
+    const rows = db.prepare("SELECT * FROM favorites").all();
     response.json(rows);
-  });
+  } catch (err) {
+    console.error(err);
+    response.status(500).json({ error: "Failed to fetch favorites" });
+  }
 });
 
 //Nie działa wczytywanie user_id z ciasteczka, a raczej ustawienie do ciasteczka user_id
@@ -308,15 +308,14 @@ app.post("/api/favorites", (request, response) => {
   try {
     const { playlist_id } = request.body;
     const user_id = request.cookies.spotify_user_id;
-    db.get("SELECT id FROM users WHERE spotify_id = ?", [user_id], (user) => {
-      db.run("INSERT INTO favorites (user_id, playlist_id) VALUES (?, ?)", [
-        user.id,
-        playlist_id,
-      ]);
-    });
+    const user = db.prepare("SELECT id FROM users WHERE spotify_id = ?").get(user_id);
+    const result = db.prepare("INSERT INTO favorites (user_id, playlist_id) VALUES (?, ?)").run(
+      user.id,
+      playlist_id,
+    );
     response
       .status(200)
-      .json({ message: "Playlist added to favorites", id: this.lastID });
+      .json({ message: "Playlist added to favorites", id: result.lastInsertRowid });
   } catch (error) {
     console.error(error);
     response.status(500).json({ error: "Failed to add favorite" });
@@ -329,12 +328,11 @@ app.delete("/api/favorites/:id", (request, response) => {
     const { id } = request.params;
     const user_id = request.cookies.spotify_user_id;
 
-    db.get("SELECT id FROM users WHERE spotify_id = ?", [user_id], (user) => {
-      db.run("DELETE FROM favorites WHERE playlist_id = ? AND user_id = ?", [
-        id,
-        user.id,
-      ]);
-    });
+    const user = db.prepare("SELECT id FROM users WHERE spotify_id = ?").get(user_id);
+    db.prepare("DELETE FROM favorites WHERE playlist_id = ? AND user_id = ?").run(
+      id,
+      user.id,
+    );
     response.status(200).json({ message: "Playlist removed from favorites" });
   } catch (error) {
     console.error(error);
@@ -343,13 +341,13 @@ app.delete("/api/favorites/:id", (request, response) => {
 });
 
 app.get("/api/users", (request, response) => {
-  db.all("SELECT * FROM users", (err, rows) => {
-    if (err) {
-      console.error(err);
-      return response.status(500).json({ error: "Failed to fetch users" });
-    }
+  try {
+    const rows = db.prepare("SELECT * FROM users").all();
     response.json(rows);
-  });
+  } catch (err) {
+    console.error(err);
+    response.status(500).json({ error: "Failed to fetch users" });
+  }
 });
 
 app.listen(PORT, () => {
