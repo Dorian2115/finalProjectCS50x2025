@@ -111,8 +111,14 @@ app.get("/api/refresh", async (request, response) => {
 
 app.get("/logout", async (request, response) => {
   try {
-    response.clearCookie("spotify_access_token", { sameSite: "none", secure: true });
-    response.clearCookie("spotify_refresh_token", { sameSite: "none", secure: true });
+    response.clearCookie("spotify_access_token", {
+      sameSite: "none",
+      secure: true,
+    });
+    response.clearCookie("spotify_refresh_token", {
+      sameSite: "none",
+      secure: true,
+    });
     response.clearCookie("spotify_user_id", { sameSite: "none", secure: true });
     response.redirect(CLIENT_URL);
   } catch (error) {
@@ -219,9 +225,7 @@ app.get("/callback", async (request, response) => {
     response.redirect(CLIENT_URL);
   } catch (error) {
     console.error(error);
-    response.redirect(
-      `${CLIENT_URL}?error=invalid_token`,
-    );
+    response.redirect(`${CLIENT_URL}?error=invalid_token`);
   }
 });
 

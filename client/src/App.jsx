@@ -4,7 +4,7 @@ import "./App.css";
 import PlaylistDetails from "./components/PlaylistDetails";
 import UserDetails from "./components/UserDetails";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const REDIRECT_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
 function App() {
   const [playlists, setPlaylists] = useState(null);
@@ -17,10 +17,10 @@ function App() {
     const fetchData = async () => {
       try {
         const [playlistsRes, favoritesRes] = await Promise.all([
-          axios.get(`${API_BASE}/api/playlists`, {
+          axios.get(`${REDIRECT_URL}/api/playlists`, {
             withCredentials: true,
           }),
-          axios.get(`${API_BASE}/api/favorites`, {
+          axios.get(`${REDIRECT_URL}/api/favorites`, {
             withCredentials: true,
           }),
         ]);
@@ -41,7 +41,7 @@ function App() {
 
     try {
       if (isFav) {
-        await axios.delete(`${API_BASE}/api/favorites/${playlist.id}`, {
+        await axios.delete(`${REDIRECT_URL}/api/favorites/${playlist.id}`, {
           withCredentials: true,
         });
         setFavorites(
@@ -53,7 +53,7 @@ function App() {
           playlist_name: playlist.name,
           playlist_image: playlist.images[0]?.url,
         };
-        await axios.post(`${API_BASE}/api/favorites`, newFav, {
+        await axios.post(`${REDIRECT_URL}/api/favorites`, newFav, {
           withCredentials: true,
         });
         setFavorites([...favorites, newFav]);
@@ -100,7 +100,7 @@ function App() {
                 >
                   Profil
                 </button>
-                <a href={`${API_BASE}/logout`} className="logout-button">
+                <a href={`${REDIRECT_URL}/logout`} className="logout-button">
                   Wyloguj
                 </a>
               </div>
@@ -146,7 +146,7 @@ function App() {
         : <div>
             <h1>Witaj w Aplikacji do Przeglądania Playlist</h1>
             <p>Aby kontynuować, połącz swoje konto Spotify.</p>
-            <a href={`${API_BASE}/login`} className="login-button">
+            <a href={`${REDIRECT_URL}/login`} className="login-button">
               Zaloguj się przez Spotify
             </a>
           </div>
