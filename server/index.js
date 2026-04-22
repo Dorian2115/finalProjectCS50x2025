@@ -10,6 +10,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT;
+const API_BASE = "https://final-project-cs-50x2025.vercel.app";
 
 app.use(
   cors({
@@ -29,7 +30,7 @@ app.get("/login", (request, response) => {
   let queryParams = {
     client_id: process.env.CLIENT_ID,
     response_type: "code",
-    redirect_uri: process.env.REDIRECT_URI,
+    redirect_uri: `${API_BASE}/callback`,
     scope:
       "user-read-private user-read-email playlist-read-private user-top-read user-read-playback-state user-read-currently-playing user-read-recently-played user-read-playback-position",
   };
