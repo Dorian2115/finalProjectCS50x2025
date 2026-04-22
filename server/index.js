@@ -182,6 +182,7 @@ app.get("/callback", async (request, response) => {
     });
 
     // Save user to database
+    let spotifyUserId = "";
     try {
       const { data: userData } = await axios.get(
         "https://api.spotify.com/v1/me",
@@ -191,6 +192,7 @@ app.get("/callback", async (request, response) => {
           },
         },
       );
+      spotifyUserId = userData.id;
       const stmt = db.prepare(
         `INSERT OR IGNORE INTO users (spotify_id, email, display_name) VALUES (?, ?, ?)`,
       );
@@ -204,6 +206,7 @@ app.get("/callback", async (request, response) => {
       access_token: tokenResponse.data.access_token,
       refresh_token: tokenResponse.data.refresh_token,
       expires_in: tokenResponse.data.expires_in,
+      user_id: spotifyUserId,
     });
 
     response.redirect(`${CLIENT_URL}/#${params}`);

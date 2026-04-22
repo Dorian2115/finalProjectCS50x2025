@@ -27,6 +27,7 @@ function App() {
       const accessToken = params.get("access_token");
       const refreshToken = params.get("refresh_token");
       const expiresIn = params.get("expires_in");
+      const userId = params.get("user_id");
 
       if (accessToken) {
         localStorage.setItem("spotify_access_token", accessToken);
@@ -35,6 +36,9 @@ function App() {
           "spotify_token_expiry",
           Date.now() + expiresIn * 1000,
         );
+        if (userId) {
+          localStorage.setItem("spotify_user_id", userId);
+        }
         // Clean URL
         window.history.replaceState(null, "", window.location.pathname);
       }
