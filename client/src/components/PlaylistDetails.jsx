@@ -11,7 +11,7 @@ function PlaylistDetails({ playlist, onBack }) {
     const fetchTracks = async () => {
       try {
         const response = await axios.get(
-          `${API_BASE}/api/playlists/${playlist.id}/tracks`,
+          `${API_BASE}/playlists/${playlist.id}/tracks`,
           { withCredentials: true },
         );
         setTracks(response.data.items);

@@ -12,13 +12,13 @@ function UserDetails() {
     const fetchUser = async () => {
       try {
         const [userInfoRes, topArtistsRes, topTracksRes] = await Promise.all([
-          axios.get("${API_BASE}/api/user/information", {
+          axios.get(`${API_BASE}/api/user/information`, {
             withCredentials: true,
           }),
-          axios.get("${API_BASE}/api/user/topArtists", {
+          axios.get(`${API_BASE}/api/user/topArtists`, {
             withCredentials: true,
           }),
-          axios.get("${API_BASE}/api/user/topTracks", {
+          axios.get(`${API_BASE}/api/user/topTracks`, {
             withCredentials: true,
           }),
         ]);

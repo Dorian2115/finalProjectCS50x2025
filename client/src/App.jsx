@@ -12,6 +12,7 @@ function App() {
   const [view, setView] = useState("list");
 
   const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001/api";
+  const API_LOGIN = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -101,7 +102,7 @@ function App() {
                 >
                   Profil
                 </button>
-                <a href="${API_BASE}/logout" className="logout-button">
+                <a href={`${API_BASE}/logout`} className="logout-button">
                   Wyloguj
                 </a>
               </div>
@@ -147,7 +148,7 @@ function App() {
         : <div>
             <h1>Witaj w Aplikacji do Przeglądania Playlist</h1>
             <p>Aby kontynuować, połącz swoje konto Spotify.</p>
-            <a href={`${API_BASE}/login`} className="login-button">
+            <a href={`${API_LOGIN}/login`} className="login-button">
               Zaloguj się przez Spotify
             </a>
           </div>

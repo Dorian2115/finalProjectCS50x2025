@@ -10,11 +10,11 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT;
-const API_BASE = "https://final-project-cs-50x2025.vercel.app";
+const API_BASE = process.env.API_BASE;
 
 app.use(
   cors({
-    origin: "https://final-project-cs-50x2025.vercel.app",
+    origin: API_BASE,
     credentials: true,
     sameSite: "lax",
   }),
@@ -44,7 +44,7 @@ app.get("/login", (request, response) => {
 
 app.get("/api/refresh", async (request, response) => {
   try {
-    const refreshToken = request.params.refresh_token;
+    const refreshToken = request.cookies.spotify_refresh_token;
     const tokenResponse = await axios({
       method: "post",
       url: "https://accounts.spotify.com/api/token",
