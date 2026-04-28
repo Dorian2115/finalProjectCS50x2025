@@ -24,7 +24,6 @@ app.get("/", (request, response) => {
   response.send("Server is running");
 });
 
-// Helper: extract access_token from Authorization header
 function getAccessToken(request) {
   const authHeader = request.headers.authorization;
   if (authHeader && authHeader.startsWith("Bearer ")) {
@@ -307,7 +306,7 @@ app.get("/api/favorites", (request, response) => {
 
 app.post("/api/favorites", (request, response) => {
   try {
-    const { playlist_id, user_id } = request.body;
+    const { playlist_id, playlist_name, playlist_image, user_id } = request.body;
     const user = db
       .prepare("SELECT id FROM users WHERE spotify_id = ?")
       .get(user_id);
@@ -315,8 +314,10 @@ app.post("/api/favorites", (request, response) => {
       return response.status(404).json({ error: "User not found" });
     }
     const result = db
-      .prepare("INSERT INTO favorites (user_id, playlist_id) VALUES (?, ?)")
-      .run(user.id, playlist_id);
+      .prepare(
+        "INSERT INTO favorites (user_id, playlist_id, playlist_name, playlist_image) VALUES (?, ?, ?, ?)"
+      )
+      .run(user.id, playlist_id, playlist_name ?? null, playlist_image ?? null);
     response.status(200).json({
       message: "Playlist added to favorites",
       id: result.lastInsertRowid,
