@@ -1,13 +1,7 @@
 const express = require("express");
-const dotenv = require("dotenv");
-const cors = require("cors");
-const querystring = require("querystring");
-const axios = require("axios");
-const Favorite = require("../models/Favorite");
 const User = require("../models/User");
 const bcrypt = require("bcrypt");
 const jsonwebtoken = require("jsonwebtoken");
-const connectDB = require("../database");
 
 const router = express.Router();
 
@@ -24,13 +18,21 @@ router.get("/", async (request, response) => {
 router.post("/login", async (request, response) => {
   try {
     const { email, password } = request.body;
+    if (!email || !password) {
+      return response.status(400).json({ error: "Email i hasło są wymagane" });
+    }
+    if (!email.includes("@")) {
+      return response.status(400).json({ error: "Nieprawidłowy format email" });
+    }
+    if (password.length < 6) {
+      return response
+        .status(400)
+        .json({ error: "Hasło musi mieć co najmniej 6 znaków" });
+    }
     const user = await User.findOne({ email });
     if (!user) {
       return response.status(404).json({ error: "User not found" });
     }
-    console.log("User found:", user);
-    console.log("Password hash:", user.passwordHash);
-    console.log("Entered password:", password);
 
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
@@ -44,7 +46,10 @@ router.post("/login", async (request, response) => {
         expiresIn: process.env.JWT_EXPIRES_IN || "1h",
       },
     );
-    response.json({ token, user });
+    response.json({
+      token,
+      user: { id: user._id, email: user.email, displayName: user.displayName },
+    });
     console.log(user);
   } catch (err) {
     console.error(err);
@@ -54,11 +59,27 @@ router.post("/login", async (request, response) => {
 
 router.post("/register", async (request, response) => {
   try {
-    const { spotifyId, email, displayName, password, profileImageUrl } =
-      request.body;
+    const { email, displayName, password, profileImageUrl } = request.body;
+
+    if (!email || !password || !displayName) {
+      return response.status(400).json({ error: "Wszystkie pola są wymagane" });
+    }
+    if (!email.includes("@")) {
+      return response.status(400).json({ error: "Nieprawidłowy format email" });
+    }
+    if (password.length < 6) {
+      return response
+        .status(400)
+        .json({ error: "Hasło musi mieć co najmniej 6 znaków" });
+    }
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return response
+        .status(400)
+        .json({ error: "Użytkownik z tym emailem już istnieje" });
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
     const newUser = new User({
-      spotifyId,
       email,
       displayName,
       profileImageUrl,

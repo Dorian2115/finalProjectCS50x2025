@@ -5,6 +5,8 @@ function LoginForm({ onSuccess, onSwitchToRegister }) {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
   const handleSubmit = async () => {
     setError("");
     try {
@@ -13,7 +15,7 @@ function LoginForm({ onSuccess, onSwitchToRegister }) {
       } else if (password.length < 6) {
         throw new Error("Hasło musi mieć co najmniej 6 znaków");
       }
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch(`${API_BASE}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),

@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const querystring = require("querystring");
 const axios = require("axios");
+const User = require("../models/User");
 
 const router = express.Router();
 
@@ -18,7 +19,7 @@ router.get("/login", (request, response) => {
   let queryParams = {
     client_id: process.env.CLIENT_ID,
     response_type: "code",
-    redirect_uri: REDIRECT_URI,
+    redirect_uri: process.env.REDIRECT_URI,
     scope:
       "user-read-private user-read-email playlist-read-private user-top-read user-read-playback-state user-read-currently-playing user-read-recently-played user-read-playback-position",
   };
@@ -177,6 +178,7 @@ router.get("/callback", async (request, response) => {
           },
         },
       );
+      spotifyUserId = userData.id;
       await User.findOneAndUpdate(
         { spotifyId: userData.id },
         {
@@ -197,10 +199,10 @@ router.get("/callback", async (request, response) => {
       user_id: spotifyUserId,
     });
 
-    response.redirect(`${CLIENT_URL}/#${params}`);
+    response.redirect(`${process.env.CLIENT_URL}/#${params}`);
   } catch (error) {
     console.error(error);
-    response.redirect(`${CLIENT_URL}?error=invalid_token`);
+    response.redirect(`${process.env.CLIENT_URL}?error=invalid_token`);
   }
 });
 

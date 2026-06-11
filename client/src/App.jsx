@@ -3,6 +3,8 @@ import axios from "axios";
 import "./App.css";
 import PlaylistDetails from "./components/PlaylistDetails";
 import UserDetails from "./components/UserDetails";
+import LoginForm from "./components/LoginForm";
+import RegisterForm from "./components/RegisterForm";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -16,7 +18,7 @@ function App() {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
-  const [view, setView] = useState("list");
+  const [view, setView] = useState("login");
 
   useEffect(() => {
     const hash = window.location.hash.substring(1);
@@ -52,10 +54,10 @@ function App() {
 
       try {
         const [playlistsRes, favoritesRes] = await Promise.all([
-          axios.get(`${API_BASE}/api/playlists`, {
+          axios.get(`${API_BASE}/api/spotify/playlists`, {
             headers: getAuthHeaders(),
           }),
-          axios.get(`${API_BASE}/api/favorites`),
+          axios.get(`${API_BASE}/api/spotify/favorites`),
         ]);
 
         setPlaylists(playlistsRes.data.items);
@@ -193,12 +195,26 @@ function App() {
               })}
             </div>
           </div>
+        : view === "login" ?
+          <LoginForm
+            onSuccess={() => setView("list")}
+            onSwitchToRegister={() => setView("register")}
+          />
+        : view === "register" ?
+          <RegisterForm
+            onSuccess={() => setView("login")}
+            onSwitchToLogin={() => setView("login")}
+          />
         : <div>
             <h1>Witaj w Aplikacji do Przeglądania Playlist</h1>
             <p>Aby kontynuować, połącz swoje konto Spotify.</p>
-            <a href={`${API_BASE}/api/auth/login`} className="login-button">
+            <a href={`${API_BASE}/api/spotify/login`} className="login-button">
               Zaloguj się przez Spotify
             </a>
+            <p>
+              Masz konto w aplikacji?{" "}
+              <span onClick={() => setView("login")}>Zaloguj się</span>
+            </p>
           </div>
         }
       </header>
