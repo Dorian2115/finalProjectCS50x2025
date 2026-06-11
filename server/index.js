@@ -3,9 +3,12 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const querystring = require("querystring");
 const axios = require("axios");
-const db = require("./database");
+const connectDB = require("./database");
+const Favorite = require("./models/Favorite");
+const User = require("./models/User");
 
 dotenv.config();
+connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -18,6 +21,27 @@ app.use(
     credentials: true,
   }),
 );
+
+app.use((req, res, next) => {
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self' https:; " +
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+      "style-src 'self' 'unsafe-inline'; " +
+      "img-src 'self' data: https: blob:; " +
+      "font-src 'self' data:; " +
+      "connect-src 'self' https://api.spotify.com https://accounts.spotify.com; " +
+      "frame-ancestors 'none'; " +
+      "base-uri 'self'; " +
+      "form-action 'self'",
+  );
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("X-XSS-Protection", "1; mode=block");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+
+  next();
+});
 
 app.use(express.json());
 app.get("/", (request, response) => {
@@ -81,10 +105,15 @@ app.post("/api/refresh", async (request, response) => {
     );
 
     try {
-      const stmt = db.prepare(
-        `INSERT OR IGNORE INTO users (spotify_id, email, display_name) VALUES (?, ?, ?)`,
+      await User.findOneAndUpdate(
+        { spotifyId: userData.id },
+        {
+          spotifyId: userData.id,
+          email: userData.email,
+          displayName: userData.display_name,
+        },
+        { upsert: true, new: true },
       );
-      stmt.run(userData.id, userData.email, userData.display_name);
     } catch (error) {
       console.error("Error saving user:", error);
     }
@@ -180,7 +209,6 @@ app.get("/callback", async (request, response) => {
       },
     });
 
-    // Save user to database
     let spotifyUserId = "";
     try {
       const { data: userData } = await axios.get(
@@ -191,16 +219,19 @@ app.get("/callback", async (request, response) => {
           },
         },
       );
-      spotifyUserId = userData.id;
-      const stmt = db.prepare(
-        `INSERT OR IGNORE INTO users (spotify_id, email, display_name) VALUES (?, ?, ?)`,
+      await User.findOneAndUpdate(
+        { spotifyId: userData.id },
+        {
+          spotifyId: userData.id,
+          email: userData.email,
+          displayName: userData.display_name,
+        },
+        { upsert: true, new: true },
       );
-      stmt.run(userData.id, userData.email, userData.display_name);
     } catch (dbError) {
       console.error("Error saving user:", dbError);
     }
 
-    // Redirect to client with tokens in URL hash (hash is not sent to server)
     const params = querystring.stringify({
       access_token: tokenResponse.data.access_token,
       refresh_token: tokenResponse.data.refresh_token,
@@ -294,33 +325,49 @@ app.get("/api/tracks/:id", async (request, response) => {
   }
 });
 
-app.get("/api/favorites", (request, response) => {
+app.get("/api/favorites", async (request, response) => {
   try {
-    const rows = db.prepare("SELECT * FROM favorites").all();
-    response.json(rows);
+    const favorites = await Favorite.find();
+    response.json(favorites);
   } catch (err) {
     console.error(err);
     response.status(500).json({ error: "Failed to fetch favorites" });
   }
 });
 
-app.post("/api/favorites", (request, response) => {
+app.post("/api/favorites", async (request, response) => {
   try {
-    const { playlist_id, playlist_name, playlist_image, user_id } = request.body;
-    const user = db
-      .prepare("SELECT id FROM users WHERE spotify_id = ?")
-      .get(user_id);
+    const {
+      track_id,
+      user_id,
+      album_id,
+      track_name,
+      artist_name,
+      album_name,
+      album_image_url,
+      spotify_url,
+    } = request.body;
+    request.body;
+
+    const user = await User.findOne({ spotifyId: user_id });
     if (!user) {
       return response.status(404).json({ error: "User not found" });
     }
-    const result = db
-      .prepare(
-        "INSERT INTO favorites (user_id, playlist_id, playlist_name, playlist_image) VALUES (?, ?, ?, ?)"
-      )
-      .run(user.id, playlist_id, playlist_name ?? null, playlist_image ?? null);
+
+    const newFavorite = new Favorite({
+      userId: user_id,
+      trackId: track_id,
+      trackName: track_name,
+      artistName: artist_name,
+      albumName: album_name,
+      albumImageUrl: album_image_url,
+      spotifyUrl: spotify_url,
+    });
+
+    const savedFavorite = await newFavorite.save();
     response.status(200).json({
       message: "Playlist added to favorites",
-      id: result.lastInsertRowid,
+      favorite: savedFavorite,
     });
   } catch (error) {
     console.error(error);
@@ -328,21 +375,22 @@ app.post("/api/favorites", (request, response) => {
   }
 });
 
-app.delete("/api/favorites/:id", (request, response) => {
+app.delete("/api/favorites/:id", async (request, response) => {
   console.log("Usuwanie playlisty z ulubionych");
   try {
     const { id } = request.params;
     const { user_id } = request.body;
 
-    const user = db
-      .prepare("SELECT id FROM users WHERE spotify_id = ?")
-      .get(user_id);
+    const user = await User.findOne({ spotifyId: user_id });
     if (!user) {
       return response.status(404).json({ error: "User not found" });
     }
-    db.prepare(
-      "DELETE FROM favorites WHERE playlist_id = ? AND user_id = ?",
-    ).run(id, user.id);
+
+    const favorites = await Favorite.findOne({ _id: id, userId: user.id });
+    if (!favorites) {
+      return response.status(404).json({ error: "Favorite not found" });
+    }
+    await Favorite.deleteOne({ _id: id, userId: user.id });
     response.status(200).json({ message: "Playlist removed from favorites" });
   } catch (error) {
     console.error(error);
@@ -350,14 +398,25 @@ app.delete("/api/favorites/:id", (request, response) => {
   }
 });
 
-app.get("/api/users", (request, response) => {
+app.get("/api/users", async (request, response) => {
   try {
-    const rows = db.prepare("SELECT * FROM users").all();
-    response.json(rows);
+    const users = await User.find();
+    response.json(users);
   } catch (err) {
     console.error(err);
     response.status(500).json({ error: "Failed to fetch users" });
   }
+});
+
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
+
+app.use((err, req, res, next) => {
+  console.error("Unhandled error:", err);
+  res.status(err.status || 500).json({
+    error: err.message || "Internal Server Error",
+  });
 });
 
 app.listen(PORT, () => {

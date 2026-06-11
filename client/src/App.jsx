@@ -6,7 +6,6 @@ import UserDetails from "./components/UserDetails";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
-// Helper: get auth header for API requests
 function getAuthHeaders() {
   const token = localStorage.getItem("spotify_access_token");
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -19,7 +18,6 @@ function App() {
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [view, setView] = useState("list");
 
-  // On mount: check URL hash for tokens from OAuth callback
   useEffect(() => {
     const hash = window.location.hash.substring(1);
     if (hash) {
@@ -39,7 +37,6 @@ function App() {
         if (userId) {
           localStorage.setItem("spotify_user_id", userId);
         }
-        // Clean URL
         window.history.replaceState(null, "", window.location.pathname);
       }
     }
@@ -65,7 +62,6 @@ function App() {
         setFavorites(favoritesRes.data);
       } catch (error) {
         console.error("Error fetching data:", error);
-        // If 401/500 due to expired token, clear storage
         if (error.response && error.response.status === 401) {
           localStorage.removeItem("spotify_access_token");
           localStorage.removeItem("spotify_refresh_token");

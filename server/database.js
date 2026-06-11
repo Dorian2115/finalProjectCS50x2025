@@ -1,31 +1,14 @@
-const Database = require("better-sqlite3");
+const mongoose = require("mongoose");
+require("dotenv").config();
 
-const db = new Database("./database.db");
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log("Connected to MongoDB");
+  } catch (err) {
+    console.error("MongoDB connection error:", err);
+    process.exit(1);
+  }
+};
 
-db.exec(
-  "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTOINCREMENT, spotify_id TEXT UNIQUE, email TEXT, display_name TEXT)",
-);
-db.exec(
-  `CREATE TABLE IF NOT EXISTS favorites (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER,
-    playlist_id TEXT,
-    playlist_name TEXT,
-    playlist_image TEXT,
-    FOREIGN KEY (user_id) REFERENCES users (id)
-  )`,
-);
-
-const existingColumns = db
-  .pragma("table_info(favorites)")
-  .map((col) => col.name);
-
-if (!existingColumns.includes("playlist_name")) {
-  db.exec("ALTER TABLE favorites ADD COLUMN playlist_name TEXT");
-}
-
-if (!existingColumns.includes("playlist_image")) {
-  db.exec("ALTER TABLE favorites ADD COLUMN playlist_image TEXT");
-}
-
-module.exports = db;
+module.exports = connectDB;
