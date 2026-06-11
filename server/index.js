@@ -6,6 +6,7 @@ const axios = require("axios");
 const connectDB = require("./database");
 const Favorite = require("./models/Favorite");
 const User = require("./models/User");
+const bcrypt = require("bcrypt");
 
 dotenv.config();
 connectDB();
@@ -405,6 +406,41 @@ app.get("/api/users", async (request, response) => {
   } catch (err) {
     console.error(err);
     response.status(500).json({ error: "Failed to fetch users" });
+  }
+});
+
+app.post("/api/users", async (request, response) => {
+  try {
+    const { spotifyId, email, displayName, password, profileImageUrl } =
+      request.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newUser = new User({
+      spotifyId,
+      email,
+      displayName,
+      profileImageUrl,
+      passwordHash: hashedPassword,
+    });
+    const savedUser = await newUser.save();
+    response.status(201).json(savedUser);
+  } catch (err) {
+    console.error(err);
+    response.status(500).json({ error: "Failed to create user" });
+  }
+});
+
+app.delete("/api/users/:id", async (request, response) => {
+  try {
+    const { id } = request.params;
+    const user = await User.findById(id);
+    if (!user) {
+      return response.status(404).json({ error: "User not found" });
+    }
+    await User.deleteOne({ _id: id });
+    response.status(200).json({ message: "User deleted" });
+  } catch (err) {
+    console.error(err);
+    response.status(500).json({ error: "Failed to delete user" });
   }
 });
 
