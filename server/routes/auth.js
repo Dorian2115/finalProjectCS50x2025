@@ -28,6 +28,9 @@ router.post("/login", async (request, response) => {
     if (!user) {
       return response.status(404).json({ error: "User not found" });
     }
+    console.log("User found:", user);
+    console.log("Password hash:", user.passwordHash);
+    console.log("Entered password:", password);
 
     const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
     if (!isPasswordValid) {
@@ -38,7 +41,7 @@ router.post("/login", async (request, response) => {
       { userId: user._id },
       process.env.JWT_SECRET,
       {
-        expiresIn: "1h",
+        expiresIn: process.env.JWT_EXPIRES_IN || "1h",
       },
     );
     response.json({ token, user });

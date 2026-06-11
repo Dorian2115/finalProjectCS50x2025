@@ -1,12 +1,10 @@
 const express = require("express");
-const dotenv = require("dotenv");
-const cors = require("cors");
-const querystring = require("querystring");
-const axios = require("axios");
-const connectDB = require("../database");
+const User = require("../models/User");
 const Favorite = require("../models/Favorite");
-
+const authMiddleware = require("../middleware/auth");
 const router = express.Router();
+
+router.use(authMiddleware.authenticateToken);
 
 router.get("/", async (request, response) => {
   try {
@@ -30,7 +28,6 @@ router.post("/", async (request, response) => {
       album_image_url,
       spotify_url,
     } = request.body;
-    request.body;
 
     const user = await User.findOne({ spotifyId: user_id });
     if (!user) {
@@ -38,7 +35,7 @@ router.post("/", async (request, response) => {
     }
 
     const newFavorite = new Favorite({
-      userId: user_id,
+      userId: user._id,
       trackId: track_id,
       trackName: track_name,
       artistName: artist_name,
@@ -69,11 +66,11 @@ router.delete("/:id", async (request, response) => {
       return response.status(404).json({ error: "User not found" });
     }
 
-    const favorites = await Favorite.findOne({ _id: id, userId: user.id });
+    const favorites = await Favorite.findOne({ _id: id, userId: user._id });
     if (!favorites) {
       return response.status(404).json({ error: "Favorite not found" });
     }
-    await Favorite.deleteOne({ _id: id, userId: user.id });
+    await Favorite.deleteOne({ _id: id, userId: user._id });
     response.status(200).json({ message: "Playlist removed from favorites" });
   } catch (error) {
     console.error(error);

@@ -44,11 +44,13 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use(cors());
+app.use(express.json());
+
 app.use("/api/spotify", spotifyRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/favorites", favoritesRoutes);
 
-app.use(express.json());
 app.get("/", (request, response) => {
   response.send("Server is running");
 });
