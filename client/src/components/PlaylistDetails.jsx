@@ -16,7 +16,7 @@ function PlaylistDetails({ playlist, onBack }) {
     const fetchTracks = async () => {
       try {
         const response = await axios.get(
-          `${API_BASE}/api/playlists/${playlist.id}/tracks`,
+          `${API_BASE}/api/spotify/playlists/${playlist.id}/tracks`,
           { headers: getAuthHeaders() },
         );
         setTracks(response.data.items);

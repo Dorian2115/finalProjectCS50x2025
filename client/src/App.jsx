@@ -44,9 +44,6 @@ function App() {
         if (userId) {
           localStorage.setItem("spotify_user_id", userId);
         }
-        setTimeout(() => {
-          window.history.replaceState(null, "", window.location.pathname);
-        }, 100);
       }
     }
   }, []);
