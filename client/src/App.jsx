@@ -13,6 +13,11 @@ function getAuthHeaders() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+function getAccessToken() {
+  const token = localStorage.getItem("token");
+  return token ? token : null;
+}
+
 function App() {
   const [playlists, setPlaylists] = useState(null);
   const [favorites, setFavorites] = useState([]);
@@ -39,7 +44,9 @@ function App() {
         if (userId) {
           localStorage.setItem("spotify_user_id", userId);
         }
-        window.history.replaceState(null, "", window.location.pathname);
+        setTimeout(() => {
+          window.history.replaceState(null, "", window.location.pathname);
+        }, 100);
       }
     }
   }, []);
@@ -57,7 +64,12 @@ function App() {
           axios.get(`${API_BASE}/api/spotify/playlists`, {
             headers: getAuthHeaders(),
           }),
-          axios.get(`${API_BASE}/api/spotify/favorites`),
+          axios.get(`${API_BASE}/api/favorites`, {
+            headers: {
+              Authorization: `Bearer ${getAccessToken()}`,
+              token: getAccessToken(),
+            },
+          }),
         ]);
 
         setPlaylists(playlistsRes.data.items);
@@ -80,10 +92,13 @@ function App() {
     const isFav = favorites.some((fav) => fav.playlist_id === playlist.id);
 
     try {
+      const user = localStorage.getItem("user");
       if (isFav) {
         await axios.delete(`${API_BASE}/api/favorites/${playlist.id}`, {
-          headers: getAuthHeaders(),
-          data: { user_id: localStorage.getItem("spotify_user_id") },
+          headers: {
+            Authorization: `Bearer ${getAccessToken()}`,
+          },
+          data: { user_id: user.id },
         });
         setFavorites(
           favorites.filter((fav) => fav.playlist_id !== playlist.id),
@@ -93,10 +108,12 @@ function App() {
           playlist_id: playlist.id,
           playlist_name: playlist.name,
           playlist_image: playlist.images[0]?.url,
-          user_id: localStorage.getItem("spotify_user_id"),
+          user_id: user.id,
         };
         await axios.post(`${API_BASE}/api/favorites`, newFav, {
-          headers: getAuthHeaders(),
+          headers: {
+            Authorization: `Bearer ${getAccessToken()}`,
+          },
         });
         setFavorites([...favorites, newFav]);
       }

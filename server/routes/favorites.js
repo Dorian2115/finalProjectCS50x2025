@@ -18,16 +18,8 @@ router.get("/", async (request, response) => {
 
 router.post("/", async (request, response) => {
   try {
-    const {
-      track_id,
-      user_id,
-      album_id,
-      track_name,
-      artist_name,
-      album_name,
-      album_image_url,
-      spotify_url,
-    } = request.body;
+    const { playlist_id, playlist_name, playlist_image, user_id } =
+      request.body;
 
     const user = await User.findOne({ spotifyId: user_id });
     if (!user) {
@@ -36,12 +28,9 @@ router.post("/", async (request, response) => {
 
     const newFavorite = new Favorite({
       userId: user._id,
-      trackId: track_id,
-      trackName: track_name,
-      artistName: artist_name,
-      albumName: album_name,
-      albumImageUrl: album_image_url,
-      spotifyUrl: spotify_url,
+      playlistId: playlist_id,
+      playlistName: playlist_name,
+      playlistImage: playlist_image,
     });
 
     const savedFavorite = await newFavorite.save();
@@ -66,11 +55,14 @@ router.delete("/:id", async (request, response) => {
       return response.status(404).json({ error: "User not found" });
     }
 
-    const favorites = await Favorite.findOne({ _id: id, userId: user._id });
+    const favorites = await Favorite.findOne({
+      playlistId: id,
+      userId: user._id,
+    });
     if (!favorites) {
       return response.status(404).json({ error: "Favorite not found" });
     }
-    await Favorite.deleteOne({ _id: id, userId: user._id });
+    await Favorite.deleteOne({ playlistId: id, userId: user._id });
     response.status(200).json({ message: "Playlist removed from favorites" });
   } catch (error) {
     console.error(error);
