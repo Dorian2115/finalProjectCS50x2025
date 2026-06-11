@@ -45,6 +45,7 @@ router.post("/login", async (request, response) => {
       },
     );
     response.json({ token, user });
+    console.log(user);
   } catch (err) {
     console.error(err);
     response.status(500).json({ error: "Failed to login" });
