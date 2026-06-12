@@ -1,23 +1,25 @@
 import { useState } from "react";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
 function RegisterForm({ onSuccess, onSwitchToLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [error, setError] = useState("");
-
-  const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     setError("");
+    setLoading(true);
     try {
-      if (!email.includes("@")) {
+      if (!displayName.trim()) {
+        throw new Error("Proszę wpisać imię");
+      } else if (!email.includes("@")) {
         throw new Error("Proszę wpisać poprawny adres email");
       } else if (password.length < 6) {
         throw new Error("Hasło musi mieć co najmniej 6 znaków");
-      } else if (!displayName.trim()) {
-        throw new Error("Proszę wpisać imię");
       } else if (password !== confirmPassword) {
         throw new Error("Hasła muszą być takie same");
       }
@@ -34,46 +36,85 @@ function RegisterForm({ onSuccess, onSwitchToLogin }) {
       onSuccess();
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="form-container">
-      <h2>Rejestracja</h2>
+    <div className="auth-page">
+      <div className="form-container">
+        <div className="form-logo">🎵</div>
+        <h2>Utwórz konto</h2>
+        <p className="form-subtitle">Dołącz i przeglądaj swoje playlisty</p>
 
-      {error && <p className="error">{error}</p>}
-      <input
-        type="text"
-        placeholder="Imię"
-        value={displayName}
-        onChange={(e) => setDisplayName(e.target.value)}
-      />
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+        {error && (
+          <div className="form-error">
+            <span>⚠</span> {error}
+          </div>
+        )}
 
-      <input
-        type="password"
-        placeholder="Hasło"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+        <div className="form-fields">
+          <div className="input-group">
+            <label htmlFor="reg-name">Imię</label>
+            <input
+              id="reg-name"
+              className="form-input"
+              type="text"
+              placeholder="Twoje imię"
+              value={displayName}
+              onChange={(e) => setDisplayName(e.target.value)}
+            />
+          </div>
 
-      <input
-        type="password"
-        placeholder="Potwierdź hasło"
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-      />
+          <div className="input-group">
+            <label htmlFor="reg-email">Email</label>
+            <input
+              id="reg-email"
+              className="form-input"
+              type="email"
+              placeholder="twoj@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
 
-      <button onClick={handleSubmit}>Zarejestruj się</button>
+          <div className="input-group">
+            <label htmlFor="reg-password">Hasło</label>
+            <input
+              id="reg-password"
+              className="form-input"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
 
-      <p>
-        Masz już konto? <span onClick={onSwitchToLogin}>Zaloguj się</span>
-      </p>
+          <div className="input-group">
+            <label htmlFor="reg-confirm">Potwierdź hasło</label>
+            <input
+              id="reg-confirm"
+              className="form-input"
+              type="password"
+              placeholder="••••••••"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <button className="form-submit" onClick={handleSubmit} disabled={loading}>
+          {loading ? "Tworzenie konta..." : "Zarejestruj się"}
+        </button>
+
+        <p className="form-footer">
+          Masz już konto?{" "}
+          <button className="form-footer-link" onClick={onSwitchToLogin}>
+            Zaloguj się
+          </button>
+        </p>
+      </div>
     </div>
   );
 }

@@ -1,14 +1,16 @@
 import { useState } from "react";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
 function LoginForm({ onSuccess, onSwitchToRegister }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
-  const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     setError("");
+    setLoading(true);
     try {
       if (!email.includes("@")) {
         throw new Error("Proszę wpisać poprawny adres email");
@@ -32,35 +34,67 @@ function LoginForm({ onSuccess, onSwitchToRegister }) {
       onSuccess();
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") handleSubmit();
+  };
+
   return (
-    <div className="form-container">
-      <h2>Logowanie</h2>
+    <div className="auth-page">
+      <div className="form-container">
+        <div className="form-logo">🎵</div>
+        <h2>Witaj ponownie</h2>
+        <p className="form-subtitle">Zaloguj się do swojego konta</p>
 
-      {error && <p className="error">{error}</p>}
+        {error && (
+          <div className="form-error">
+            <span>⚠</span> {error}
+          </div>
+        )}
 
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-      />
+        <div className="form-fields">
+          <div className="input-group">
+            <label htmlFor="login-email">Email</label>
+            <input
+              id="login-email"
+              className="form-input"
+              type="email"
+              placeholder="twoj@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+          </div>
 
-      <input
-        type="password"
-        placeholder="Hasło"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+          <div className="input-group">
+            <label htmlFor="login-password">Hasło</label>
+            <input
+              id="login-password"
+              className="form-input"
+              type="password"
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={handleKeyDown}
+            />
+          </div>
+        </div>
 
-      <button onClick={handleSubmit}>Zaloguj się</button>
+        <button className="form-submit" onClick={handleSubmit} disabled={loading}>
+          {loading ? "Logowanie..." : "Zaloguj się"}
+        </button>
 
-      <p>
-        Nie masz konta?{" "}
-        <span onClick={onSwitchToRegister}>Zarejestruj się</span>
-      </p>
+        <p className="form-footer">
+          Nie masz konta?{" "}
+          <button className="form-footer-link" onClick={onSwitchToRegister}>
+            Zarejestruj się
+          </button>
+        </p>
+      </div>
     </div>
   );
 }

@@ -42,71 +42,125 @@ function UserDetails() {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="loading-screen">
+        <div className="loading-spinner" />
+        <span>Ładowanie profilu...</span>
+      </div>
+    );
   }
 
   if (error) {
-    return <div>Error: {error.message}</div>;
+    return (
+      <div className="empty-state">
+        <span className="empty-state-icon">⚠️</span>
+        <p>Błąd podczas ładowania profilu.</p>
+      </div>
+    );
   }
 
   return (
     <div className="user-profile">
-      <div className="profile-header">
-        <img
-          src={user.images[0]?.url}
-          alt="Avatar"
-          className="profile-avatar"
-        />
-        <div className="profile-info">
+      {/* Hero Section */}
+      <div className="profile-hero">
+        <div className="profile-avatar-wrapper">
+          {user.images?.[0]?.url ? (
+            <img
+              src={user.images[0].url}
+              alt="Avatar"
+              className="profile-avatar"
+            />
+          ) : (
+            <div className="profile-avatar-placeholder">👤</div>
+          )}
+        </div>
+        <div className="profile-info-text">
+          <div className="profile-label">Profil Spotify</div>
           <h2>{user.display_name}</h2>
           <p className="profile-email">{user.email}</p>
+          <div className="profile-stats">
+            {user.top_artists && (
+              <div className="profile-stat">
+                <span className="profile-stat-value">{user.top_artists.length}</span>
+                <span className="profile-stat-label">Top Artyści</span>
+              </div>
+            )}
+            {user.top_tracks && (
+              <div className="profile-stat">
+                <span className="profile-stat-value">{user.top_tracks.length}</span>
+                <span className="profile-stat-label">Top Utwory</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
+      {/* Top Artists & Tracks */}
       <div className="profile-sections">
-        <div className="profile-section">
-          <h3 className="section-title">Top Artists</h3>
-          {user.top_artists && user.top_artists.length > 0 ?
-            <ul className="top-artists-list">
+        <div className="profile-section-card">
+          <h3 className="section-title">🎤 Top Artyści</h3>
+          {user.top_artists && user.top_artists.length > 0 ? (
+            <ul className="top-list">
               {user.top_artists.slice(0, 10).map((artist, index) => (
-                <li key={artist.id} className="artist-item">
-                  <span className="artist-rank">#{index + 1}</span>
-                  <span className="artist-name">{artist.name}</span>
-                  <span className="artist-image">
-                    <img src={artist.images[0]?.url} alt={artist.name} />
+                <li key={artist.id} className="top-list-item">
+                  <span className={`item-rank ${index < 3 ? "top-3" : ""}`}>
+                    #{index + 1}
                   </span>
+                  {artist.images?.[0]?.url && (
+                    <img
+                      className="item-thumb round"
+                      src={artist.images[0].url}
+                      alt={artist.name}
+                    />
+                  )}
+                  <div className="item-info">
+                    <div className="item-name">{artist.name}</div>
+                    {artist.genres?.[0] && (
+                      <div className="item-sub">{artist.genres[0]}</div>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>
-          : <p style={{ color: "var(--secondary-text)" }}>
-              Brak danych o ulubionych artystach.
-            </p>
-          }
+          ) : (
+            <div className="empty-state">
+              <span className="empty-state-icon">🎤</span>
+              <p>Brak danych o ulubionych artystach.</p>
+            </div>
+          )}
         </div>
 
-        <div className="profile-section">
-          <h3 className="section-title">Top Tracks</h3>
-          {user.top_tracks && user.top_tracks.length > 0 ?
-            <ul className="top-artists-list">
+        <div className="profile-section-card">
+          <h3 className="section-title">🎵 Top Utwory</h3>
+          {user.top_tracks && user.top_tracks.length > 0 ? (
+            <ul className="top-list">
               {user.top_tracks.slice(0, 10).map((track, index) => (
-                <li key={track.id} className="artist-item">
-                  <span className="artist-rank">#{index + 1}</span>
-                  <div>
-                    <div className="artist-name">{track.name}</div>
-                    <div className="track-artist-text">
+                <li key={track.id} className="top-list-item">
+                  <span className={`item-rank ${index < 3 ? "top-3" : ""}`}>
+                    #{index + 1}
+                  </span>
+                  {track.album?.images?.[2]?.url && (
+                    <img
+                      className="item-thumb"
+                      src={track.album.images[2].url}
+                      alt={track.name}
+                    />
+                  )}
+                  <div className="item-info">
+                    <div className="item-name">{track.name}</div>
+                    <div className="item-sub">
                       {track.artists.map((a) => a.name).join(", ")}
                     </div>
                   </div>
-                  <span className="artist-image">
-                    <img src={track.album.images[2]?.url} alt={track.name} />
-                  </span>
                 </li>
               ))}
             </ul>
-          : <p style={{ color: "var(--secondary-text)" }}>
-              Brak danych o ulubionych utworach.
-            </p>
-          }
+          ) : (
+            <div className="empty-state">
+              <span className="empty-state-icon">🎵</span>
+              <p>Brak danych o ulubionych utworach.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

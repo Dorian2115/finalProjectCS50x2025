@@ -8,6 +8,12 @@ function getAuthHeaders() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+function formatDuration(ms) {
+  const min = Math.floor(ms / 60000);
+  const sec = Math.floor((ms % 60000) / 1000);
+  return `${min}:${sec < 10 ? "0" : ""}${sec}`;
+}
+
 function PlaylistDetails({ playlist, onBack }) {
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,80 +36,86 @@ function PlaylistDetails({ playlist, onBack }) {
     fetchTracks();
   }, [playlist.id]);
 
-  if (loading) return <div>Loading tracks...</div>;
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <div className="loading-spinner" />
+        <span>Ładowanie utworów...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="playlist-details">
       <button onClick={onBack} className="back-button">
-        &larr; Back to Playlists
+        ← Powrót do playlist
       </button>
 
-      <div className="playlist-header">
+      {/* Hero */}
+      <div className="playlist-hero">
         <img
           src={playlist.images[0]?.url}
           alt={playlist.name}
           className="playlist-cover-large"
         />
-        <div className="playlist-title-section">
+        <div className="playlist-hero-info">
+          <div className="playlist-hero-label">Playlista</div>
           <h2>{playlist.name}</h2>
           <div className="playlist-meta">
-            {playlist.tracks.total} tracks &bull; {playlist.owner.display_name}
+            <span>{playlist.owner.display_name}</span>
+            <span className="playlist-meta-dot">•</span>
+            <span>{playlist.tracks.total} utworów</span>
           </div>
         </div>
       </div>
 
-      <table className="tracks-table">
-        <thead>
-          <tr>
-            <th style={{ width: "50px" }}>#</th>
-            <th>Title</th>
-            <th>Album</th>
-            <th>Date Added</th>
-            <th>
-              <span role="img" aria-label="duration">
-                🕒
-              </span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {tracks.map((item, index) => {
-            const track = item.track;
-            if (!track) return null;
+      {/* Tracks Table */}
+      <div className="tracks-table-wrapper">
+        <table className="tracks-table">
+          <thead>
+            <tr>
+              <th style={{ width: "50px" }}>#</th>
+              <th>Tytuł</th>
+              <th>Album</th>
+              <th>Data dodania</th>
+              <th>🕒</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tracks.map((item, index) => {
+              const track = item.track;
+              if (!track) return null;
+              const dateAdded = new Date(item.added_at).toLocaleDateString("pl-PL");
 
-            const durationMin = Math.floor(track.duration_ms / 60000);
-            const durationSec = ((track.duration_ms % 60000) / 1000).toFixed(0);
-            const dateAdded = new Date(item.added_at).toLocaleDateString();
-
-            return (
-              <tr key={track.id || index}>
-                <td>{index + 1}</td>
-                <td>
-                  <div className="track-main-info">
-                    <img
-                      src={track.album.images[2]?.url}
-                      alt={track.album.name}
-                      className="track-cover-small"
-                    />
-                    <div>
-                      <div className="track-name-text">{track.name}</div>
-                      <div className="track-artist-text">
-                        {track.artists.map((a) => a.name).join(", ")}
+              return (
+                <tr key={track.id || index}>
+                  <td className="track-num">{index + 1}</td>
+                  <td>
+                    <div className="track-main-info">
+                      <img
+                        src={track.album.images[2]?.url}
+                        alt={track.album.name}
+                        className="track-cover-small"
+                      />
+                      <div>
+                        <div className="track-name-text">{track.name}</div>
+                        <div className="track-artist-text">
+                          {track.artists.map((a) => a.name).join(", ")}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </td>
-                <td>{track.album.name}</td>
-                <td>{dateAdded}</td>
-                <td>
-                  {durationMin}:{durationSec < 10 ? "0" : ""}
-                  {durationSec}
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+                  </td>
+                  <td className="track-album-text">{track.album.name}</td>
+                  <td className="track-date-text">{dateAdded}</td>
+                  <td className="track-duration">
+                    {formatDuration(track.duration_ms)}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

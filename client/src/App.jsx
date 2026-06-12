@@ -136,37 +136,41 @@ function App() {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="loading-screen">
+        <div className="loading-spinner" />
+        <span>Ładowanie...</span>
+      </div>
+    );
   }
 
   return (
     <div className="App">
       <header className="App-header">
-        {view === "details" && selectedPlaylist ?
+        {view === "details" && selectedPlaylist ? (
           <PlaylistDetails
             playlist={selectedPlaylist}
             onBack={() => setView("list")}
           />
-        : view === "profile" ?
-          <div>
+        ) : view === "profile" ? (
+          <div style={{ width: "100%", maxWidth: "1100px" }}>
             <button onClick={() => setView("list")} className="back-button">
-              &larr; Back to Playlists
+              ← Powrót do playlist
             </button>
             <UserDetails />
           </div>
-        : playlists ?
-          <div>
-            <div className="header-content">
-              <h1>Twoje Playlisty Spotify</h1>
-              <div>
+        ) : playlists ? (
+          <div className="playlists-container">
+            <div className="page-header">
+              <h1>🎵 Twoje Playlisty</h1>
+              <div className="header-actions">
                 <button
-                  className="logout-button"
-                  style={{ marginRight: "10px" }}
+                  className="btn btn-ghost"
                   onClick={() => setView("profile")}
                 >
-                  Profil
+                  👤 Profil
                 </button>
-                <button onClick={handleLogout} className="logout-button">
+                <button onClick={handleLogout} className="btn btn-danger">
                   Wyloguj
                 </button>
               </div>
@@ -188,18 +192,21 @@ function App() {
                         className="playlist-image"
                       />
                       <div className="playlist-overlay">
-                        <span>View Tracks</span>
+                        <span>Otwórz</span>
                       </div>
                     </div>
                     <div className="playlist-info">
                       <h3>{playlist.name}</h3>
-                      <p>{playlist.tracks.total} tracks</p>
+                      <p>{playlist.tracks.total} utworów</p>
+                    </div>
+                    <div className="playlist-card-footer">
                       <button
                         className={`fav-button ${isFav ? "active" : ""}`}
                         onClick={(e) => {
                           e.stopPropagation();
                           toggleFavorite(playlist);
                         }}
+                        title={isFav ? "Usuń z ulubionych" : "Dodaj do ulubionych"}
                       >
                         {isFav ? "❤️" : "🤍"}
                       </button>
@@ -209,28 +216,32 @@ function App() {
               })}
             </div>
           </div>
-        : view === "login" ?
+        ) : view === "login" ? (
           <LoginForm
             onSuccess={() => setView("list")}
             onSwitchToRegister={() => setView("register")}
           />
-        : view === "register" ?
+        ) : view === "register" ? (
           <RegisterForm
             onSuccess={() => setView("login")}
             onSwitchToLogin={() => setView("login")}
           />
-        : <div>
-            <h1>Witaj w Aplikacji do Przeglądania Playlist</h1>
-            <p>Aby kontynuować, połącz swoje konto Spotify.</p>
-            <a href={`${API_BASE}/api/spotify/login`} className="login-button">
-              Zaloguj się przez Spotify
-            </a>
-            <p>
-              Masz konto w aplikacji?{" "}
-              <span onClick={() => setView("login")}>Zaloguj się</span>
-            </p>
+        ) : (
+          <div className="welcome-screen">
+            <div className="welcome-logo">🎵</div>
+            <h1>Twoje Playlisty,<br />Twoja Muzyka</h1>
+            <p>Połącz konto Spotify i zarządzaj ulubionymi playlistami w jednym miejscu.</p>
+            <div className="welcome-actions">
+              <a href={`${API_BASE}/api/spotify/login`} className="btn-spotify">
+                Zaloguj przez Spotify
+              </a>
+              <div className="welcome-divider">lub</div>
+              <button className="btn-text-link" onClick={() => setView("login")}>
+                Zaloguj się przez <span>konto aplikacji</span>
+              </button>
+            </div>
           </div>
-        }
+        )}
       </header>
     </div>
   );
