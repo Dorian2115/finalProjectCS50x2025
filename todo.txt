@@ -1,0 +1,6 @@
+wymyślić sposób na to aby użytkownik bez połączenia z kontem spotify, mógł korzystać aplikacji
+dodać sekcję ustawienia konta i wyznaczyć informacje o profilu spotify do innej zakładki
+mieć możliwość połączenia ze spotify z panelu ustawień
+jasny tryb i ciemny tryb
+wykonać dokumentacje
+dodać lepszą walidacje rejestracji konta
