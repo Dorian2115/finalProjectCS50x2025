@@ -49,14 +49,18 @@ router.post(
 
       response.json({
         token,
-        user: { id: user._id, email: user.email, displayName: user.displayName },
+        user: {
+          id: user._id,
+          email: user.email,
+          displayName: user.displayName,
+        },
       });
       console.log(user);
     } catch (err) {
       console.error(err);
       response.status(500).json({ error: "Failed to login" });
     }
-  }
+  },
 );
 
 router.post(

@@ -6,6 +6,7 @@ import UserDetails from "./components/UserDetails";
 import LoginForm from "./components/LoginForm";
 import RegisterForm from "./components/RegisterForm";
 import { ThemeProvider, useTheme } from "./ThemeContext.jsx";
+import SettingsView from "./components/SettingsView.jsx";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -162,12 +163,12 @@ function App() {
             playlist={selectedPlaylist}
             onBack={() => setView("list")}
           />
-        ) : view === "profile" ? (
+        ) : view === "settings" ? (
           <div style={{ width: "100%", maxWidth: "1100px" }}>
+            <SettingsView />
             <button onClick={() => setView("list")} className="back-button">
               ← Powrót do playlist
             </button>
-            <UserDetails />
           </div>
         ) : playlists ? (
           <div className="playlists-container">
@@ -179,8 +180,8 @@ function App() {
                 </button>
                 <button
                   className="btn btn-ghost"
-                  onClick={() => setView("profile")}>
-                  👤 Profil
+                  onClick={() => setView("settings")}>
+                  Ustawienia
                 </button>
                 <button onClick={handleLogout} className="btn btn-danger">
                   Wyloguj
