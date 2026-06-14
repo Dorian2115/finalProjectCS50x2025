@@ -137,6 +137,9 @@ function App() {
     localStorage.removeItem("spotify_refresh_token");
     localStorage.removeItem("spotify_token_expiry");
     localStorage.removeItem("spotify_user_id");
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    localStorage.removeItem("theme");
     setPlaylists(null);
     setFavorites([]);
     setView("list");
@@ -154,19 +157,19 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        {view === "details" && selectedPlaylist ?
+        {view === "details" && selectedPlaylist ? (
           <PlaylistDetails
             playlist={selectedPlaylist}
             onBack={() => setView("list")}
           />
-        : view === "profile" ?
+        ) : view === "profile" ? (
           <div style={{ width: "100%", maxWidth: "1100px" }}>
             <button onClick={() => setView("list")} className="back-button">
               ← Powrót do playlist
             </button>
             <UserDetails />
           </div>
-        : playlists ?
+        ) : playlists ? (
           <div className="playlists-container">
             <div className="page-header">
               <h1>🎵 Twoje Playlisty</h1>
@@ -176,8 +179,7 @@ function App() {
                 </button>
                 <button
                   className="btn btn-ghost"
-                  onClick={() => setView("profile")}
-                >
+                  onClick={() => setView("profile")}>
                   👤 Profil
                 </button>
                 <button onClick={handleLogout} className="btn btn-danger">
@@ -194,8 +196,7 @@ function App() {
                   <div key={playlist.id} className="playlist-card">
                     <div
                       className="playlist-image-container"
-                      onClick={() => handlePlaylistClick(playlist)}
-                    >
+                      onClick={() => handlePlaylistClick(playlist)}>
                       <img
                         src={playlist.images[0]?.url}
                         alt={playlist.name}
@@ -218,8 +219,7 @@ function App() {
                         }}
                         title={
                           isFav ? "Usuń z ulubionych" : "Dodaj do ulubionych"
-                        }
-                      >
+                        }>
                         {isFav ? "❤️" : "🤍"}
                       </button>
                     </div>
@@ -228,17 +228,18 @@ function App() {
               })}
             </div>
           </div>
-        : view === "login" ?
+        ) : view === "login" ? (
           <LoginForm
             onSuccess={() => setView("list")}
             onSwitchToRegister={() => setView("register")}
           />
-        : view === "register" ?
+        ) : view === "register" ? (
           <RegisterForm
             onSuccess={() => setView("login")}
             onSwitchToLogin={() => setView("login")}
           />
-        : <div className="welcome-screen">
+        ) : (
+          <div className="welcome-screen">
             <div className="welcome-logo">🎵</div>
             <h1>
               Twoje Playlisty,
@@ -256,13 +257,12 @@ function App() {
               <div className="welcome-divider">lub</div>
               <button
                 className="btn-text-link"
-                onClick={() => setView("login")}
-              >
+                onClick={() => setView("login")}>
                 Zaloguj się przez <span>konto aplikacji</span>
               </button>
             </div>
           </div>
-        }
+        )}
       </header>
     </div>
   );
