@@ -960,3 +960,241 @@
     opacity: 1;
   }
 }
+
+/* ── Settings View ──────────────────────────────────────────── */
+.settings-view {
+  width: 100%;
+  max-width: 1100px;
+  animation: fadeUp 0.35s ease;
+  text-align: left;
+  margin-top: 10px;
+}
+
+.settings-header {
+  margin-bottom: 32px;
+}
+
+.settings-header h2 {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+
+.settings-subtitle {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.settings-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.settings-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: var(--shadow-md);
+}
+
+.card-header {
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.settings-user-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.settings-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--accent);
+  box-shadow: 0 0 0 4px var(--accent-dim);
+}
+
+.settings-avatar-placeholder {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2rem;
+  font-weight: 800;
+  box-shadow: 0 0 0 4px var(--accent-dim);
+  user-select: none;
+}
+
+.settings-user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
+.info-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.info-value {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  word-break: break-all;
+}
+
+.spotify-status-card {
+  display: flex;
+  gap: 18px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.spotify-logo-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #1db954;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(29, 185, 84, 0.3);
+}
+
+.spotify-status-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.spotify-status-info h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-success {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid rgba(29, 185, 84, 0.3);
+}
+
+.badge-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+
+.spotify-status-description {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin: 4px 0 0 0;
+  text-align: left;
+}
+
+.connect-btn {
+  display: inline-flex !important;
+  width: auto !important;
+  padding: 12px 24px !important;
+}
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 48px 0 32px;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+}
+
+.section-divider::before,
+.section-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.spotify-details-section {
+  animation: fadeUp 0.4s ease;
+}
+
+@media (max-width: 480px) {
+  .settings-user-info {
+    flex-direction: column;
+    text-align: center;
+  }
+  .settings-avatar, .settings-avatar-placeholder {
+    margin: 0 auto;
+  }
+  .spotify-status-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  .spotify-logo-wrapper {
+    margin: 0 auto;
+  }
+  .spotify-status-info {
+    align-items: center;
+  }
+  .spotify-status-description {
+    text-align: center;
+  }
+}
+
