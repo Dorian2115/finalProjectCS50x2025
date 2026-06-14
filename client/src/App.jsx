@@ -5,6 +5,7 @@ import PlaylistDetails from "./components/PlaylistDetails";
 import UserDetails from "./components/UserDetails";
 import LoginForm from "./components/LoginForm";
 import RegisterForm from "./components/RegisterForm";
+import { ThemeProvider, useTheme } from "./ThemeContext.jsx";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
@@ -24,6 +25,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [view, setView] = useState("login");
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const hash = window.location.hash.substring(1);
@@ -44,7 +46,11 @@ function App() {
         if (userId) {
           localStorage.setItem("spotify_user_id", userId);
         }
-        window.history.replaceState(null, "", window.location.pathname);
+        try {
+          window.history.replaceState(null, "", window.location.pathname);
+        } catch (e) {
+          console.log("Error clearing URL hash:", e);
+        }
       }
     }
   }, []);
@@ -148,23 +154,26 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        {view === "details" && selectedPlaylist ? (
+        {view === "details" && selectedPlaylist ?
           <PlaylistDetails
             playlist={selectedPlaylist}
             onBack={() => setView("list")}
           />
-        ) : view === "profile" ? (
+        : view === "profile" ?
           <div style={{ width: "100%", maxWidth: "1100px" }}>
             <button onClick={() => setView("list")} className="back-button">
               ← Powrót do playlist
             </button>
             <UserDetails />
           </div>
-        ) : playlists ? (
+        : playlists ?
           <div className="playlists-container">
             <div className="page-header">
               <h1>🎵 Twoje Playlisty</h1>
               <div className="header-actions">
+                <button className="btn btn-ghost" onClick={toggleTheme}>
+                  {theme === "dark" ? "☀️ Jasny" : "🌙 Ciemny"}
+                </button>
                 <button
                   className="btn btn-ghost"
                   onClick={() => setView("profile")}
@@ -207,7 +216,9 @@ function App() {
                           e.stopPropagation();
                           toggleFavorite(playlist);
                         }}
-                        title={isFav ? "Usuń z ulubionych" : "Dodaj do ulubionych"}
+                        title={
+                          isFav ? "Usuń z ulubionych" : "Dodaj do ulubionych"
+                        }
                       >
                         {isFav ? "❤️" : "🤍"}
                       </button>
@@ -217,32 +228,41 @@ function App() {
               })}
             </div>
           </div>
-        ) : view === "login" ? (
+        : view === "login" ?
           <LoginForm
             onSuccess={() => setView("list")}
             onSwitchToRegister={() => setView("register")}
           />
-        ) : view === "register" ? (
+        : view === "register" ?
           <RegisterForm
             onSuccess={() => setView("login")}
             onSwitchToLogin={() => setView("login")}
           />
-        ) : (
-          <div className="welcome-screen">
+        : <div className="welcome-screen">
             <div className="welcome-logo">🎵</div>
-            <h1>Twoje Playlisty,<br />Twoja Muzyka</h1>
-            <p>Połącz konto Spotify i zarządzaj ulubionymi playlistami w jednym miejscu.</p>
+            <h1>
+              Twoje Playlisty,
+              <br />
+              Twoja Muzyka
+            </h1>
+            <p>
+              Połącz konto Spotify i zarządzaj ulubionymi playlistami w jednym
+              miejscu.
+            </p>
             <div className="welcome-actions">
               <a href={`${API_BASE}/api/spotify/login`} className="btn-spotify">
                 Zaloguj przez Spotify
               </a>
               <div className="welcome-divider">lub</div>
-              <button className="btn-text-link" onClick={() => setView("login")}>
+              <button
+                className="btn-text-link"
+                onClick={() => setView("login")}
+              >
                 Zaloguj się przez <span>konto aplikacji</span>
               </button>
             </div>
           </div>
-        )}
+        }
       </header>
     </div>
   );
