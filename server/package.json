@@ -21,6 +21,7 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.7.0",
-    "nodemon": "^3.1.11"
+    "nodemon": "^3.1.11",
+    "password-validator": "^5.3.0"
   }
 }
