@@ -1,5 +1,6 @@
 const jsonwebtoken = require("jsonwebtoken");
 
+// weryfikacja jwt tokena
 function authenticateToken(request, response, next) {
   const token = getAccessToken(request);
 
@@ -15,6 +16,7 @@ function authenticateToken(request, response, next) {
   });
 }
 
+// wyciaga bearer token z headera
 function getAccessToken(request) {
   const authHeader = request.headers.authorization;
   if (authHeader && authHeader.startsWith("Bearer ")) {

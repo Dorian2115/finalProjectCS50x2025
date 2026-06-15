@@ -61,7 +61,7 @@ function UserDetails() {
 
   return (
     <div className="user-profile">
-      {/* Hero Section */}
+      {/* sekcja hero */}
       <div className="profile-hero">
         <div className="profile-avatar-wrapper">
           {user.images?.[0]?.url ? (
@@ -95,7 +95,7 @@ function UserDetails() {
         </div>
       </div>
 
-      {/* Top Artists & Tracks */}
+      {/* top artysci i piosenki */}
       <div className="profile-sections">
         <div className="profile-section-card">
           <h3 className="section-title">🎤 Top Artyści</h3>

@@ -10,6 +10,7 @@ import SettingsView from "./components/SettingsView.jsx";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
+// pomocnicze - tokeny z localstorage
 function getAuthHeaders() {
   const token = localStorage.getItem("spotify_access_token");
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -27,33 +28,16 @@ function App() {
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const { theme, toggleTheme } = useTheme();
 
-  /**
-   * Inicjalizacja widoku na podstawie stanu localStorage.
-   * Jeśli użytkownik posiada ważny token JWT → widok "list" (playlisty).
-   * W przeciwnym razie → widok "login".
-   *
-   * DLACZEGO: Bez tego, po powrocie ze Spotify OAuth callback
-   * (pełne przeładowanie strony), stan view resetuje się do "login"
-   * mimo że JWT jest wciąż ważny w localStorage.
-   */
+  // widok startowy - jesli jest token to lista, jesli nie to login
   const [view, setView] = useState(() => {
     const token = localStorage.getItem("token");
     return token ? "list" : "login";
   });
 
-  /**
-   * Klucz wymuszający ponowne pobranie danych.
-   * Inkrementowany po połączeniu konta Spotify (callback z hash).
-   * Powoduje ponowne uruchomienie useEffect fetchującego playlisty.
-   */
+  // klucz do wymuszenia refetcha po polaczeniu spotify
   const [refreshKey, setRefreshKey] = useState(0);
 
-  /**
-   * Obsługa powrotu ze Spotify OAuth callback.
-   * Spotify przekierowuje na CLIENT_URL/#access_token=...&refresh_token=...
-   * Ten useEffect odczytuje tokeny z URL hash i zapisuje je w localStorage.
-   * Po zapisaniu — ustawia view na "list" i wymusza refetch playlist.
-   */
+  // obsluga powrotu z oauth spotify - tokeny z url hash
   useEffect(() => {
     const hash = window.location.hash.substring(1);
     if (hash) {
@@ -79,19 +63,13 @@ function App() {
           console.log("Error clearing URL hash:", e);
         }
 
-        // Po zapisaniu tokenów Spotify — przejdź do widoku playlist
-        // i wymuś ponowne pobranie danych (refetch)
         setView("list");
         setRefreshKey((k) => k + 1);
       }
     }
   }, []);
 
-  /**
-   * Pobieranie playlist i ulubionych z API.
-   * Uruchamiane przy starcie oraz po zmianie refreshKey
-   * (np. po połączeniu konta Spotify).
-   */
+  // fetch playlist i ulubionych z api
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem("spotify_access_token");
@@ -129,6 +107,7 @@ function App() {
     fetchData();
   }, [refreshKey]);
 
+  // dodaj/usun z ulubionych
   const toggleFavorite = async (playlist) => {
     const isFav = favorites.some((fav) => fav.playlist_id === playlist.id);
 
@@ -169,6 +148,7 @@ function App() {
     setView("details");
   };
 
+  // wylogowanie - czyszczenie localstorage
   const handleLogout = () => {
     localStorage.removeItem("spotify_access_token");
     localStorage.removeItem("spotify_refresh_token");
@@ -191,19 +171,7 @@ function App() {
     );
   }
 
-  /**
-   * Logika renderowania widoków.
-   *
-   * Kolejność sprawdzania:
-   * 1. "login"    → formularz logowania (niezalogowany)
-   * 2. "register" → formularz rejestracji (niezalogowany)
-   * 3. "details"  → szczegóły playlisty (zalogowany)
-   * 4. "settings" → ustawienia konta (zalogowany)
-   * 5. "list"     → widok playlist lub zachęta do połączenia Spotify (zalogowany)
-   *
-   * DLACZEGO taka kolejność: login/register są sprawdzane jako pierwsze,
-   * żeby po zalogowaniu użytkownik trafiał do "list" a nie do welcome screen.
-   */
+  // renderowanie widokow: login -> register -> details -> settings -> spotify-profile -> list
   return (
     <div className="App">
       <header className="App-header">
@@ -247,7 +215,7 @@ function App() {
             <UserDetails />
           </div>
         ) : (
-          /* view === "list" — widok domyślny dla zalogowanego użytkownika */
+          // widok listy playlist
           <div className="playlists-container">
             <div className="page-header">
               <h1>🎵 Twoje Playlisty</h1>

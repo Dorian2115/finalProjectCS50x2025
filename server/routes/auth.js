@@ -7,6 +7,7 @@ const { authenticateToken } = require("../middleware/auth");
 
 const router = express.Router();
 
+// pobierz wszystkich userow
 router.get("/", async (request, response) => {
   try {
     const users = await User.find();
@@ -17,6 +18,7 @@ router.get("/", async (request, response) => {
   }
 });
 
+// logowanie
 router.post(
   "/login",
   body("email").isEmail().withMessage("Niepoprawny format email"),
@@ -64,6 +66,7 @@ router.post(
   },
 );
 
+// rejestracja
 router.post(
   "/register",
   body("email")
@@ -129,13 +132,7 @@ router.post(
   },
 );
 
-/**
- * PUT /api/auth/profile
- *
- * Aktualizuje dane profilowe zalogowanego użytkownika (displayName, email).
- * Wymaga ważnego tokena JWT w nagłówku Authorization.
- * Sprawdza unikalność emaila, aby uniknąć konfliktów z innymi kontami.
- */
+// edycja profilu
 router.put(
   "/profile",
   authenticateToken,
@@ -157,7 +154,7 @@ router.put(
       const { displayName, email } = request.body;
       const userId = request.user.userId;
 
-      // Sprawdzenie czy inny użytkownik nie ma już tego emaila
+      // sprawdzenie unikalnosci emaila
       const existingUser = await User.findOne({ email, _id: { $ne: userId } });
       if (existingUser) {
         return response
@@ -189,13 +186,7 @@ router.put(
   },
 );
 
-/**
- * PUT /api/auth/password
- *
- * Zmienia hasło zalogowanego użytkownika.
- * Wymaga podania aktualnego hasła (currentPassword) w celu weryfikacji tożsamości
- * oraz nowego hasła (newPassword) spełniającego wymagania bezpieczeństwa.
- */
+// zmiana hasla
 router.put(
   "/password",
   authenticateToken,
@@ -220,7 +211,7 @@ router.put(
         return response.status(404).json({ error: "Użytkownik nie znaleziony" });
       }
 
-      // Weryfikacja aktualnego hasła przed zmianą
+      // weryfikacja starego hasla
       const isPasswordValid = await bcrypt.compare(
         currentPassword,
         user.passwordHash,
@@ -231,7 +222,7 @@ router.put(
           .json({ error: "Aktualne hasło jest nieprawidłowe" });
       }
 
-      // Hash i zapis nowego hasła
+      // hash i zapis nowego
       user.passwordHash = await bcrypt.hash(newPassword, 10);
       await user.save();
 

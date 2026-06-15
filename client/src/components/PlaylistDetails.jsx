@@ -51,7 +51,7 @@ function PlaylistDetails({ playlist, onBack }) {
         ← Powrót do playlist
       </button>
 
-      {/* Hero */}
+      {/* hero */}
       <div className="playlist-hero">
         <img
           src={playlist.images[0]?.url}
@@ -69,7 +69,7 @@ function PlaylistDetails({ playlist, onBack }) {
         </div>
       </div>
 
-      {/* Tracks Table */}
+      {/* lista utworow */}
       <div className="tracks-table-wrapper">
         <table className="tracks-table">
           <thead>
