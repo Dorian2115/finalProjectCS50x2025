@@ -1,0 +1,3 @@
+chciałbym żeby przy zalogowaniu na konto (nie spotify) przekierowywało mnie do playlist a nie do logowania spotify od razu, a w "ustawieniach" 
+potrzebuje formularza w tym projekcie, więc chciałbym pomysł od ciebie
+muszę naprawić problem z tym, że przy logowaniu, po połączeniu konta spotify znowu mnie wraca do logowania i dopiero po ponownym zalogowaniu wraca mnie do playlist. 

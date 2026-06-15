@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import "./App.css";
 import PlaylistDetails from "./components/PlaylistDetails";
@@ -25,9 +25,35 @@ function App() {
   const [favorites, setFavorites] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
-  const [view, setView] = useState("login");
   const { theme, toggleTheme } = useTheme();
 
+  /**
+   * Inicjalizacja widoku na podstawie stanu localStorage.
+   * Jeśli użytkownik posiada ważny token JWT → widok "list" (playlisty).
+   * W przeciwnym razie → widok "login".
+   *
+   * DLACZEGO: Bez tego, po powrocie ze Spotify OAuth callback
+   * (pełne przeładowanie strony), stan view resetuje się do "login"
+   * mimo że JWT jest wciąż ważny w localStorage.
+   */
+  const [view, setView] = useState(() => {
+    const token = localStorage.getItem("token");
+    return token ? "list" : "login";
+  });
+
+  /**
+   * Klucz wymuszający ponowne pobranie danych.
+   * Inkrementowany po połączeniu konta Spotify (callback z hash).
+   * Powoduje ponowne uruchomienie useEffect fetchującego playlisty.
+   */
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  /**
+   * Obsługa powrotu ze Spotify OAuth callback.
+   * Spotify przekierowuje na CLIENT_URL/#access_token=...&refresh_token=...
+   * Ten useEffect odczytuje tokeny z URL hash i zapisuje je w localStorage.
+   * Po zapisaniu — ustawia view na "list" i wymusza refetch playlist.
+   */
   useEffect(() => {
     const hash = window.location.hash.substring(1);
     if (hash) {
@@ -52,10 +78,20 @@ function App() {
         } catch (e) {
           console.log("Error clearing URL hash:", e);
         }
+
+        // Po zapisaniu tokenów Spotify — przejdź do widoku playlist
+        // i wymuś ponowne pobranie danych (refetch)
+        setView("list");
+        setRefreshKey((k) => k + 1);
       }
     }
   }, []);
 
+  /**
+   * Pobieranie playlist i ulubionych z API.
+   * Uruchamiane przy starcie oraz po zmianie refreshKey
+   * (np. po połączeniu konta Spotify).
+   */
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem("spotify_access_token");
@@ -91,7 +127,7 @@ function App() {
       }
     };
     fetchData();
-  }, []);
+  }, [refreshKey]);
 
   const toggleFavorite = async (playlist) => {
     const isFav = favorites.some((fav) => fav.playlist_id === playlist.id);
@@ -143,7 +179,7 @@ function App() {
     localStorage.removeItem("theme");
     setPlaylists(null);
     setFavorites([]);
-    setView("list");
+    setView("login");
   };
 
   if (loading) {
@@ -155,10 +191,33 @@ function App() {
     );
   }
 
+  /**
+   * Logika renderowania widoków.
+   *
+   * Kolejność sprawdzania:
+   * 1. "login"    → formularz logowania (niezalogowany)
+   * 2. "register" → formularz rejestracji (niezalogowany)
+   * 3. "details"  → szczegóły playlisty (zalogowany)
+   * 4. "settings" → ustawienia konta (zalogowany)
+   * 5. "list"     → widok playlist lub zachęta do połączenia Spotify (zalogowany)
+   *
+   * DLACZEGO taka kolejność: login/register są sprawdzane jako pierwsze,
+   * żeby po zalogowaniu użytkownik trafiał do "list" a nie do welcome screen.
+   */
   return (
     <div className="App">
       <header className="App-header">
-        {view === "details" && selectedPlaylist ? (
+        {view === "login" ? (
+          <LoginForm
+            onSuccess={() => setView("list")}
+            onSwitchToRegister={() => setView("register")}
+          />
+        ) : view === "register" ? (
+          <RegisterForm
+            onSuccess={() => setView("login")}
+            onSwitchToLogin={() => setView("login")}
+          />
+        ) : view === "details" && selectedPlaylist ? (
           <PlaylistDetails
             playlist={selectedPlaylist}
             onBack={() => setView("list")}
@@ -180,7 +239,25 @@ function App() {
             </div>
             <SettingsView />
           </div>
-        ) : playlists ? (
+        ) : view === "spotify-profile" ? (
+          <div style={{ width: "100%", maxWidth: "1100px" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}>
+              <button onClick={() => setView("list")} className="back-button">
+                ← Powrót do playlist
+              </button>
+              <button className="btn btn-ghost" onClick={toggleTheme}>
+                {theme === "dark" ? "☀️ Jasny" : "🌙 Ciemny"}
+              </button>
+            </div>
+            <UserDetails />
+          </div>
+        ) : (
+          /* view === "list" — widok domyślny dla zalogowanego użytkownika */
           <div className="playlists-container">
             <div className="page-header">
               <h1>🎵 Twoje Playlisty</h1>
@@ -188,6 +265,13 @@ function App() {
                 <button className="btn btn-ghost" onClick={toggleTheme}>
                   {theme === "dark" ? "☀️ Jasny" : "🌙 Ciemny"}
                 </button>
+                {localStorage.getItem("spotify_access_token") && (
+                  <button
+                    className="btn btn-ghost"
+                    onClick={() => setView("spotify-profile")}>
+                    Profil Spotify
+                  </button>
+                )}
                 <button
                   className="btn btn-ghost"
                   onClick={() => setView("settings")}>
@@ -199,7 +283,7 @@ function App() {
               </div>
             </div>
             <div className="playlists-grid">
-              {localStorage.getItem("spotify_access_token") ? (
+              {playlists && playlists.length > 0 ? (
                 playlists.map((playlist) => {
                   const isFav = favorites.some(
                     (fav) => fav.playlist_id === playlist.id,
@@ -239,44 +323,20 @@ function App() {
                   );
                 })
               ) : (
-                <p className=" spotify-status-description">
-                  Nie posiadasz połączenia ze Spotify
-                </p>
+                <div className="no-spotify-prompt">
+                  <div className="no-spotify-icon">🎵</div>
+                  <h2>Połącz swoje konto Spotify</h2>
+                  <p className="spotify-status-description">
+                    Aby przeglądać swoje playlisty, połącz konto Spotify w
+                    ustawieniach.
+                  </p>
+                  <button
+                    className="btn-spotify"
+                    onClick={() => setView("settings")}>
+                    Przejdź do ustawień
+                  </button>
+                </div>
               )}
-            </div>
-          </div>
-        ) : view === "login" ? (
-          <LoginForm
-            onSuccess={() => setView("list")}
-            onSwitchToRegister={() => setView("register")}
-          />
-        ) : view === "register" ? (
-          <RegisterForm
-            onSuccess={() => setView("login")}
-            onSwitchToLogin={() => setView("login")}
-          />
-        ) : (
-          <div className="welcome-screen">
-            <div className="welcome-logo">🎵</div>
-            <h1>
-              Twoje Playlisty,
-              <br />
-              Twoja Muzyka
-            </h1>
-            <p>
-              Połącz konto Spotify i zarządzaj ulubionymi playlistami w jednym
-              miejscu.
-            </p>
-            <div className="welcome-actions">
-              <a href={`${API_BASE}/api/spotify/login`} className="btn-spotify">
-                Zaloguj przez Spotify
-              </a>
-              <div className="welcome-divider">lub</div>
-              <button
-                className="btn-text-link"
-                onClick={() => setView("login")}>
-                Zaloguj się przez <span>konto aplikacji</span>
-              </button>
             </div>
           </div>
         )}
