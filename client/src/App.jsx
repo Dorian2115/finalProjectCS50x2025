@@ -165,10 +165,20 @@ function App() {
           />
         ) : view === "settings" ? (
           <div style={{ width: "100%", maxWidth: "1100px" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}>
+              <button onClick={() => setView("list")} className="back-button">
+                ← Powrót do playlist
+              </button>
+              <button className="btn btn-ghost" onClick={toggleTheme}>
+                {theme === "dark" ? "☀️ Jasny" : "🌙 Ciemny"}
+              </button>
+            </div>
             <SettingsView />
-            <button onClick={() => setView("list")} className="back-button">
-              ← Powrót do playlist
-            </button>
           </div>
         ) : playlists ? (
           <div className="playlists-container">
@@ -189,44 +199,50 @@ function App() {
               </div>
             </div>
             <div className="playlists-grid">
-              {playlists.map((playlist) => {
-                const isFav = favorites.some(
-                  (fav) => fav.playlist_id === playlist.id,
-                );
-                return (
-                  <div key={playlist.id} className="playlist-card">
-                    <div
-                      className="playlist-image-container"
-                      onClick={() => handlePlaylistClick(playlist)}>
-                      <img
-                        src={playlist.images[0]?.url}
-                        alt={playlist.name}
-                        className="playlist-image"
-                      />
-                      <div className="playlist-overlay">
-                        <span>Otwórz</span>
+              {localStorage.getItem("spotify_access_token") ? (
+                playlists.map((playlist) => {
+                  const isFav = favorites.some(
+                    (fav) => fav.playlist_id === playlist.id,
+                  );
+                  return (
+                    <div key={playlist.id} className="playlist-card">
+                      <div
+                        className="playlist-image-container"
+                        onClick={() => handlePlaylistClick(playlist)}>
+                        <img
+                          src={playlist.images[0]?.url}
+                          alt={playlist.name}
+                          className="playlist-image"
+                        />
+                        <div className="playlist-overlay">
+                          <span>Otwórz</span>
+                        </div>
+                      </div>
+                      <div className="playlist-info">
+                        <h3>{playlist.name}</h3>
+                        <p>{playlist.tracks.total} utworów</p>
+                      </div>
+                      <div className="playlist-card-footer">
+                        <button
+                          className={`fav-button ${isFav ? "active" : ""}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleFavorite(playlist);
+                          }}
+                          title={
+                            isFav ? "Usuń z ulubionych" : "Dodaj do ulubionych"
+                          }>
+                          {isFav ? "❤️" : "🤍"}
+                        </button>
                       </div>
                     </div>
-                    <div className="playlist-info">
-                      <h3>{playlist.name}</h3>
-                      <p>{playlist.tracks.total} utworów</p>
-                    </div>
-                    <div className="playlist-card-footer">
-                      <button
-                        className={`fav-button ${isFav ? "active" : ""}`}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleFavorite(playlist);
-                        }}
-                        title={
-                          isFav ? "Usuń z ulubionych" : "Dodaj do ulubionych"
-                        }>
-                        {isFav ? "❤️" : "🤍"}
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              ) : (
+                <p className=" spotify-status-description">
+                  Nie posiadasz połączenia ze Spotify
+                </p>
+              )}
             </div>
           </div>
         ) : view === "login" ? (
