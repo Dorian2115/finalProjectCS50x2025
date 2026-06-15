@@ -224,12 +224,7 @@ function App() {
           />
         ) : view === "settings" ? (
           <div style={{ width: "100%", maxWidth: "1100px" }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}>
+            <div className="view-top-bar">
               <button onClick={() => setView("list")} className="back-button">
                 ← Powrót do playlist
               </button>
@@ -241,12 +236,7 @@ function App() {
           </div>
         ) : view === "spotify-profile" ? (
           <div style={{ width: "100%", maxWidth: "1100px" }}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}>
+            <div className="view-top-bar">
               <button onClick={() => setView("list")} className="back-button">
                 ← Powrót do playlist
               </button>
