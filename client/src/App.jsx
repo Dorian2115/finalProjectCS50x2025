@@ -78,6 +78,7 @@ function App() {
         return;
       }
 
+      setLoading(true);
       try {
         const [playlistsRes, favoritesRes] = await Promise.all([
           axios.get(`${API_BASE}/api/spotify/playlists`, {
@@ -106,6 +107,7 @@ function App() {
     };
     fetchData();
   }, [refreshKey]);
+
 
   // dodaj/usun z ulubionych
   const toggleFavorite = async (playlist) => {
@@ -182,7 +184,9 @@ function App() {
           />
         ) : view === "register" ? (
           <RegisterForm
-            onSuccess={() => setView("login")}
+            onSuccess={() => {
+              setView("list");
+            }}
             onSwitchToLogin={() => setView("login")}
           />
         ) : view === "details" && selectedPlaylist ? (

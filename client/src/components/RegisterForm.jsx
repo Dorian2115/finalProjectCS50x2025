@@ -91,6 +91,10 @@ function RegisterForm({ onSuccess, onSwitchToLogin }) {
         }
         throw new Error(data.error || "Nie można się zarejestrować");
       }
+
+      const data = await response.json();
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("user", JSON.stringify(data.user));
       onSuccess();
     } catch (err) {
       setErrors((prev) => ({ ...prev, general: err.message }));
