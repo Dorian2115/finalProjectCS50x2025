@@ -164,7 +164,9 @@ router.put(
       );
 
       if (!updatedUser) {
-        return response.status(404).json({ error: "Użytkownik nie znaleziony" });
+        return response
+          .status(404)
+          .json({ error: "Użytkownik nie znaleziony" });
       }
 
       response.json({
@@ -176,7 +178,9 @@ router.put(
       });
     } catch (err) {
       console.error(err);
-      response.status(500).json({ error: "Nie udało się zaktualizować profilu" });
+      response
+        .status(500)
+        .json({ error: "Nie udało się zaktualizować profilu" });
     }
   },
 );
@@ -202,7 +206,9 @@ router.put(
 
       const user = await User.findById(userId);
       if (!user) {
-        return response.status(404).json({ error: "Użytkownik nie znaleziony" });
+        return response
+          .status(404)
+          .json({ error: "Użytkownik nie znaleziony" });
       }
 
       const isPasswordValid = await bcrypt.compare(

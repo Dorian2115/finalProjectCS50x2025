@@ -10,7 +10,9 @@ const connectDB = async () => {
     try {
       const collection = mongoose.connection.collection("users");
       const indexes = await collection.indexes();
-      const hasObsoleteIndex = indexes.some(idx => idx.name === "spotifyId_1");
+      const hasObsoleteIndex = indexes.some(
+        (idx) => idx.name === "spotifyId_1",
+      );
       if (hasObsoleteIndex) {
         await collection.dropIndex("spotifyId_1");
         console.log("Dropped obsolete spotifyId_1 index");

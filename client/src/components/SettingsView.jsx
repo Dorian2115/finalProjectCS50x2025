@@ -10,9 +10,8 @@ function SettingsView() {
     !!localStorage.getItem("spotify_access_token"),
   );
 
-  const [displayName, setDisplayName] = useState(
-    userData.displayName || "",
-  );
+  // stan formularza profilu
+  const [displayName, setDisplayName] = useState(userData.displayName || "");
   const [email, setEmail] = useState(userData.email || "");
   const [profileErrors, setProfileErrors] = useState({
     displayName: "",

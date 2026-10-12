@@ -63,15 +63,13 @@ function UserDetails() {
     <div className="user-profile">
       <div className="profile-hero">
         <div className="profile-avatar-wrapper">
-          {user.images?.[0]?.url ? (
+          {user.images?.[0]?.url ?
             <img
               src={user.images[0].url}
               alt="Avatar"
               className="profile-avatar"
             />
-          ) : (
-            <div className="profile-avatar-placeholder">👤</div>
-          )}
+          : <div className="profile-avatar-placeholder">👤</div>}
         </div>
         <div className="profile-info-text">
           <div className="profile-label">Profil Spotify</div>
@@ -80,13 +78,17 @@ function UserDetails() {
           <div className="profile-stats">
             {user.top_artists && (
               <div className="profile-stat">
-                <span className="profile-stat-value">{user.top_artists.length}</span>
+                <span className="profile-stat-value">
+                  {user.top_artists.length}
+                </span>
                 <span className="profile-stat-label">Top Artyści</span>
               </div>
             )}
             {user.top_tracks && (
               <div className="profile-stat">
-                <span className="profile-stat-value">{user.top_tracks.length}</span>
+                <span className="profile-stat-value">
+                  {user.top_tracks.length}
+                </span>
                 <span className="profile-stat-label">Top Utwory</span>
               </div>
             )}
@@ -97,7 +99,7 @@ function UserDetails() {
       <div className="profile-sections">
         <div className="profile-section-card">
           <h3 className="section-title">🎤 Top Artyści</h3>
-          {user.top_artists && user.top_artists.length > 0 ? (
+          {user.top_artists && user.top_artists.length > 0 ?
             <ul className="top-list">
               {user.top_artists.slice(0, 10).map((artist, index) => (
                 <li key={artist.id} className="top-list-item">
@@ -120,17 +122,16 @@ function UserDetails() {
                 </li>
               ))}
             </ul>
-          ) : (
-            <div className="empty-state">
+          : <div className="empty-state">
               <span className="empty-state-icon">🎤</span>
               <p>Brak danych o ulubionych artystach.</p>
             </div>
-          )}
+          }
         </div>
 
         <div className="profile-section-card">
           <h3 className="section-title">🎵 Top Utwory</h3>
-          {user.top_tracks && user.top_tracks.length > 0 ? (
+          {user.top_tracks && user.top_tracks.length > 0 ?
             <ul className="top-list">
               {user.top_tracks.slice(0, 10).map((track, index) => (
                 <li key={track.id} className="top-list-item">
@@ -153,12 +154,11 @@ function UserDetails() {
                 </li>
               ))}
             </ul>
-          ) : (
-            <div className="empty-state">
+          : <div className="empty-state">
               <span className="empty-state-icon">🎵</span>
               <p>Brak danych o ulubionych utworach.</p>
             </div>
-          )}
+          }
         </div>
       </div>
     </div>

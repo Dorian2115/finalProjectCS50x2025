@@ -83,7 +83,9 @@ function PlaylistDetails({ playlist, onBack }) {
             {tracks.map((item, index) => {
               const track = item.track;
               if (!track) return null;
-              const dateAdded = new Date(item.added_at).toLocaleDateString("pl-PL");
+              const dateAdded = new Date(item.added_at).toLocaleDateString(
+                "pl-PL",
+              );
 
               return (
                 <tr key={track.id || index}>
