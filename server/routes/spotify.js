@@ -7,7 +7,6 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-// wyciaga token z headera authorization
 function getAccessToken(request) {
   const authHeader = request.headers.authorization;
   if (authHeader && authHeader.startsWith("Bearer ")) {
@@ -16,7 +15,6 @@ function getAccessToken(request) {
   return null;
 }
 
-// przekierowanie do spotify oauth
 router.get("/login", (request, response) => {
   let queryParams = {
     client_id: process.env.CLIENT_ID,
@@ -33,7 +31,6 @@ router.get("/login", (request, response) => {
   response.redirect(authUrl);
 });
 
-// odswiezanie tokena spotify
 router.post("/refresh", async (request, response) => {
   try {
     const { refresh_token } = request.body;
@@ -92,7 +89,6 @@ router.post("/refresh", async (request, response) => {
   }
 });
 
-// dane usera ze spotify
 router.get("/user/information", async (request, response) => {
   try {
     const access_token = getAccessToken(request);
@@ -112,7 +108,6 @@ router.get("/user/information", async (request, response) => {
   }
 });
 
-// top artysci usera
 router.get("/user/topArtists", async (request, response) => {
   try {
     const access_token = getAccessToken(request);
@@ -134,7 +129,6 @@ router.get("/user/topArtists", async (request, response) => {
   }
 });
 
-// top utwory usera
 router.get("/user/topTracks", async (request, response) => {
   try {
     const access_token = getAccessToken(request);
@@ -152,7 +146,6 @@ router.get("/user/topTracks", async (request, response) => {
   }
 });
 
-// callback po autoryzacji spotify - wymiana code na tokeny
 router.get("/callback", async (request, response) => {
   try {
     const code = request.query.code || null;
@@ -174,7 +167,6 @@ router.get("/callback", async (request, response) => {
       },
     });
 
-    // zapis usera do bazy
     let spotifyUserId = "";
     try {
       const { data: userData } = await axios.get(
@@ -199,7 +191,6 @@ router.get("/callback", async (request, response) => {
       console.error("Error saving user:", dbError);
     }
 
-    // redirect z tokenami w hash
     const params = querystring.stringify({
       access_token: tokenResponse.data.access_token,
       refresh_token: tokenResponse.data.refresh_token,
@@ -214,7 +205,6 @@ router.get("/callback", async (request, response) => {
   }
 });
 
-// pobierz playlisty usera
 router.get("/playlists", async (request, response) => {
   try {
     const access_token = getAccessToken(request);
@@ -233,7 +223,6 @@ router.get("/playlists", async (request, response) => {
   }
 });
 
-// pobierz konkretna playliste
 router.get("/playlists/:id", async (request, response) => {
   try {
     const access_token = getAccessToken(request);
@@ -252,7 +241,6 @@ router.get("/playlists/:id", async (request, response) => {
   }
 });
 
-// pobierz tracki z playlisty
 router.get("/playlists/:id/tracks", async (request, response) => {
   try {
     const playlistId = request.params.id;
@@ -272,7 +260,6 @@ router.get("/playlists/:id/tracks", async (request, response) => {
   }
 });
 
-// pobierz pojedynczy track
 router.get("/tracks/:id", async (request, response) => {
   try {
     const trackId = request.params.id;

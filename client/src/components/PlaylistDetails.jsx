@@ -51,7 +51,6 @@ function PlaylistDetails({ playlist, onBack }) {
         ← Powrót do playlist
       </button>
 
-      {/* hero */}
       <div className="playlist-hero">
         <img
           src={playlist.images[0]?.url}
@@ -69,7 +68,6 @@ function PlaylistDetails({ playlist, onBack }) {
         </div>
       </div>
 
-      {/* lista utworow */}
       <div className="tracks-table-wrapper">
         <table className="tracks-table">
           <thead>
@@ -85,7 +83,9 @@ function PlaylistDetails({ playlist, onBack }) {
             {tracks.map((item, index) => {
               const track = item.track;
               if (!track) return null;
-              const dateAdded = new Date(item.added_at).toLocaleDateString("pl-PL");
+              const dateAdded = new Date(item.added_at).toLocaleDateString(
+                "pl-PL",
+              );
 
               return (
                 <tr key={track.id || index}>

@@ -1,7 +1,3 @@
-/* ============================================================
-   App.css — Main application styles (dark Spotify-inspired)
-   ============================================================ */
-
 .App {
   min-height: 100vh;
   background: var(--bg-primary);
@@ -17,7 +13,6 @@
   overflow-x: hidden;
 }
 
-/* ── Loading Screen ─────────────────────────────────────────── */
 .loading-screen {
   display: flex;
   flex-direction: column;
@@ -43,7 +38,6 @@
   }
 }
 
-/* ── Welcome / Landing ──────────────────────────────────────── */
 .welcome-screen {
   display: flex;
   flex-direction: column;
@@ -158,7 +152,6 @@
   font-weight: 600;
 }
 
-/* ── Page Header ────────────────────────────────────────────── */
 .page-header {
   display: flex;
   align-items: center;
@@ -183,7 +176,6 @@
   align-items: center;
 }
 
-/* ── Buttons ────────────────────────────────────────────────── */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -246,7 +238,6 @@
   color: var(--text-primary);
 }
 
-/* ── Playlists Grid ─────────────────────────────────────────── */
 .playlists-container {
   width: 100%;
   max-width: 1100px;
@@ -387,7 +378,6 @@
   }
 }
 
-/* ── Playlist Details ───────────────────────────────────────── */
 .playlist-details {
   text-align: left;
   width: 100%;
@@ -452,7 +442,6 @@
   color: var(--text-muted);
 }
 
-/* ── Tracks Table ───────────────────────────────────────────── */
 .tracks-table-wrapper {
   border-radius: var(--radius-lg);
   overflow: hidden;
@@ -548,7 +537,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-/* ── User Profile ───────────────────────────────────────────── */
 .user-profile {
   width: 100%;
   max-width: 1100px;
@@ -649,20 +637,17 @@
   letter-spacing: 0.5px;
 }
 
-/* ── Profile Sections ───────────────────────────────────────── */
 .profile-sections {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 28px;
 }
 
-/* ── Responsive: Tablet (≤768px) ────────────────────────────── */
 @media (max-width: 768px) {
   .App-header {
     padding: 24px 16px 60px;
   }
 
-  /* Page header — stack vertically */
   .page-header {
     flex-direction: column;
     align-items: flex-start;
@@ -686,12 +671,10 @@
     font-size: 0.8rem;
   }
 
-  /* Profile sections → single column */
   .profile-sections {
     grid-template-columns: 1fr;
   }
 
-  /* Profile hero → vertical */
   .profile-hero {
     flex-direction: column;
     text-align: center;
@@ -705,7 +688,6 @@
     justify-content: center;
   }
 
-  /* Playlist hero → vertical */
   .playlist-hero {
     flex-direction: column;
     align-items: center;
@@ -725,7 +707,6 @@
     justify-content: center;
   }
 
-  /* Tracks table → horizontal scroll */
   .tracks-table-wrapper {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -734,7 +715,6 @@
     min-width: 600px;
   }
 
-  /* Settings grid → single column on tablet */
   .settings-grid {
     grid-template-columns: 1fr;
   }
@@ -742,7 +722,6 @@
     font-size: 1.6rem;
   }
 
-  /* Welcome screen adjustments */
   .welcome-screen h1 {
     font-size: 2rem;
   }
@@ -843,7 +822,6 @@
   text-overflow: ellipsis;
 }
 
-/* ── Login / Register Forms ─────────────────────────────────── */
 .auth-page {
   display: flex;
   align-items: center;
@@ -1005,7 +983,6 @@
   color: var(--accent-hover);
 }
 
-/* ── Empty State ────────────────────────────────────────────── */
 .empty-state {
   display: flex;
   flex-direction: column;
@@ -1022,7 +999,6 @@
   opacity: 0.5;
 }
 
-/* ── Animations ─────────────────────────────────────────────── */
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -1043,7 +1019,6 @@
   }
 }
 
-/* ── View Top Bar (Back + Theme toggle) ─────────────────────── */
 .view-top-bar {
   display: flex;
   justify-content: space-between;
@@ -1052,7 +1027,6 @@
   flex-wrap: wrap;
 }
 
-/* ── Settings View ──────────────────────────────────────────── */
 .settings-view {
   width: 100%;
   max-width: 1100px;
@@ -1091,7 +1065,9 @@
   border-radius: var(--radius-xl);
   padding: 28px;
   box-shadow: var(--shadow-sm);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
 }
 
 .settings-card:hover {
@@ -1131,7 +1107,11 @@
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--accent) 0%,
+    var(--accent-hover) 100%
+  );
   color: #000;
   display: flex;
   align-items: center;
@@ -1265,15 +1245,12 @@
   animation: fadeUp 0.4s ease;
 }
 
-/* ── Responsive: Small tablet / Large phone (≤600px) ─────── */
 @media (max-width: 600px) {
-  /* Playlists grid — 2 columns */
   .playlists-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 12px;
   }
 
-  /* Form container — less padding */
   .form-container {
     padding: 28px 20px;
   }
@@ -1281,12 +1258,10 @@
     font-size: 1.3rem;
   }
 
-  /* Settings card — less padding */
   .settings-card {
     padding: 20px;
   }
 
-  /* Hide album & date columns on tracks table */
   .tracks-table {
     min-width: unset;
   }
@@ -1301,20 +1276,17 @@
     padding: 8px 12px;
   }
 
-  /* Back button + theme toggle row */
   .back-button {
     font-size: 0.82rem;
     margin-bottom: 16px;
   }
 }
 
-/* ── Responsive: Phone (≤480px) ─────────────────────────────── */
 @media (max-width: 480px) {
   .App-header {
     padding: 16px 12px 48px;
   }
 
-  /* Page header — full stack */
   .page-header h1 {
     font-size: 1.3rem;
   }
@@ -1325,7 +1297,6 @@
     width: 100%;
   }
 
-  /* Playlists grid — full width cards */
   .playlists-grid {
     grid-template-columns: 1fr 1fr;
     gap: 10px;
@@ -1340,7 +1311,6 @@
     font-size: 0.72rem;
   }
 
-  /* Settings user info */
   .settings-user-info {
     flex-direction: column;
     text-align: center;
@@ -1350,7 +1320,6 @@
     margin: 0 auto;
   }
 
-  /* Spotify status */
   .spotify-status-card {
     flex-direction: column;
     align-items: center;
@@ -1366,7 +1335,6 @@
     text-align: center;
   }
 
-  /* Welcome screen */
   .welcome-screen h1 {
     font-size: 1.6rem;
   }
@@ -1380,7 +1348,6 @@
     max-width: 100%;
   }
 
-  /* Playlist hero — phone */
   .playlist-cover-large {
     width: 110px;
     height: 110px;
@@ -1394,7 +1361,6 @@
     gap: 16px;
   }
 
-  /* Profile hero — phone */
   .profile-avatar,
   .profile-avatar-placeholder {
     width: 80px;
@@ -1409,7 +1375,6 @@
     gap: 16px;
   }
 
-  /* Profile section cards */
   .profile-section-card {
     padding: 16px;
   }
@@ -1428,7 +1393,6 @@
     font-size: 0.72rem;
   }
 
-  /* Track covers smaller */
   .track-cover-small {
     width: 34px;
     height: 34px;
@@ -1437,7 +1401,6 @@
     gap: 10px;
   }
 
-  /* No Spotify prompt */
   .no-spotify-prompt {
     padding: 40px 16px;
   }
@@ -1448,13 +1411,11 @@
     font-size: 1.3rem;
   }
 
-  /* Form tweaks */
   .form-container {
     padding: 24px 16px;
     border-radius: var(--radius-lg);
   }
 
-  /* Settings header */
   .settings-header h2 {
     font-size: 1.4rem;
   }
@@ -1465,13 +1426,11 @@
     padding: 16px;
   }
 
-  /* Section divider */
   .section-divider {
     margin: 32px 0 20px;
     font-size: 0.72rem;
   }
 
-  /* Buttons */
   .btn {
     font-size: 0.8rem;
     padding: 7px 14px;
@@ -1482,7 +1441,6 @@
   }
 }
 
-/* ── Form Success Message ──────────────────────────────────── */
 .form-success {
   display: flex;
   align-items: center;
@@ -1498,7 +1456,6 @@
   animation: fadeUp 0.3s ease;
 }
 
-/* ── Field-level Error (pod inputem) ───────────────────────── */
 .field-error {
   font-size: 0.78rem;
   color: var(--danger);
@@ -1507,7 +1464,6 @@
   animation: fadeUp 0.2s ease;
 }
 
-/* ── Input Error Border ────────────────────────────────────── */
 .form-input.input-error {
   border-color: var(--danger);
   box-shadow: 0 0 0 3px rgba(241, 86, 86, 0.15);
@@ -1518,7 +1474,6 @@
   box-shadow: 0 0 0 3px rgba(241, 86, 86, 0.25);
 }
 
-/* ── No Spotify Prompt ─────────────────────────────────────── */
 .no-spotify-prompt {
   grid-column: 1 / -1;
   display: flex;
@@ -1556,7 +1511,6 @@
   margin-top: 8px;
 }
 
-/* ── Settings Form Layout ──────────────────────────────────── */
 .settings-form {
   display: flex;
   flex-direction: column;
@@ -1573,19 +1527,16 @@
   margin-top: 8px;
 }
 
-/* ── Settings Avatar Row (centered in form) ────────────────── */
 .settings-avatar-row {
   display: flex;
   justify-content: center;
   margin-bottom: 8px;
 }
 
-/* ── Settings Card Full Width ──────────────────────────────── */
 .settings-card-full {
   grid-column: 1 / -1;
 }
 
-/* ── Form Submit Disabled State ────────────────────────────── */
 .form-submit:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -1597,7 +1548,6 @@
   box-shadow: 0 4px 16px var(--accent-glow);
 }
 
-/* ── Status Badge Button Styles ────────────────────────────── */
 .status-badge {
   display: flex;
   gap: 8px;

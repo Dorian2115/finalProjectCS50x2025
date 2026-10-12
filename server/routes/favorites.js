@@ -6,7 +6,6 @@ const router = express.Router();
 
 router.use(authMiddleware.authenticateToken);
 
-// pobierz ulubione
 router.get("/", async (request, response) => {
   try {
     const favorites = await Favorite.find();
@@ -17,7 +16,6 @@ router.get("/", async (request, response) => {
   }
 });
 
-// dodaj do ulubionych
 router.post("/", async (request, response) => {
   try {
     const { playlist_id, playlist_name, playlist_image, user_id } =
@@ -46,7 +44,6 @@ router.post("/", async (request, response) => {
   }
 });
 
-// usun z ulubionych
 router.delete("/:id", async (request, response) => {
   try {
     const { id } = request.params;

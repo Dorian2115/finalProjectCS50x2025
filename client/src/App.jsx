@@ -10,7 +10,6 @@ import SettingsView from "./components/SettingsView.jsx";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
-// pomocnicze - tokeny z localstorage
 function getAuthHeaders() {
   const token = localStorage.getItem("spotify_access_token");
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -28,16 +27,13 @@ function App() {
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const { theme, toggleTheme } = useTheme();
 
-  // widok startowy - jesli jest token to lista, jesli nie to login
   const [view, setView] = useState(() => {
     const token = localStorage.getItem("token");
     return token ? "list" : "login";
   });
 
-  // klucz do wymuszenia refetcha po polaczeniu spotify
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // obsluga powrotu z oauth spotify - tokeny z url hash
   useEffect(() => {
     const hash = window.location.hash.substring(1);
     if (hash) {
@@ -69,7 +65,6 @@ function App() {
     }
   }, []);
 
-  // fetch playlist i ulubionych z api
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem("spotify_access_token");
@@ -108,8 +103,6 @@ function App() {
     fetchData();
   }, [refreshKey]);
 
-
-  // dodaj/usun z ulubionych
   const toggleFavorite = async (playlist) => {
     const isFav = favorites.some((fav) => fav.playlist_id === playlist.id);
 
@@ -150,7 +143,6 @@ function App() {
     setView("details");
   };
 
-  // wylogowanie - czyszczenie localstorage
   const handleLogout = () => {
     localStorage.removeItem("spotify_access_token");
     localStorage.removeItem("spotify_refresh_token");
@@ -173,28 +165,27 @@ function App() {
     );
   }
 
-  // renderowanie widokow: login -> register -> details -> settings -> spotify-profile -> list
   return (
     <div className="App">
       <header className="App-header">
-        {view === "login" ? (
+        {view === "login" ?
           <LoginForm
             onSuccess={() => setView("list")}
             onSwitchToRegister={() => setView("register")}
           />
-        ) : view === "register" ? (
+        : view === "register" ?
           <RegisterForm
             onSuccess={() => {
               setView("list");
             }}
             onSwitchToLogin={() => setView("login")}
           />
-        ) : view === "details" && selectedPlaylist ? (
+        : view === "details" && selectedPlaylist ?
           <PlaylistDetails
             playlist={selectedPlaylist}
             onBack={() => setView("list")}
           />
-        ) : view === "settings" ? (
+        : view === "settings" ?
           <div style={{ width: "100%", maxWidth: "1100px" }}>
             <div className="view-top-bar">
               <button onClick={() => setView("list")} className="back-button">
@@ -206,7 +197,7 @@ function App() {
             </div>
             <SettingsView />
           </div>
-        ) : view === "spotify-profile" ? (
+        : view === "spotify-profile" ?
           <div style={{ width: "100%", maxWidth: "1100px" }}>
             <div className="view-top-bar">
               <button onClick={() => setView("list")} className="back-button">
@@ -218,9 +209,7 @@ function App() {
             </div>
             <UserDetails />
           </div>
-        ) : (
-          // widok listy playlist
-          <div className="playlists-container">
+        : <div className="playlists-container">
             <div className="page-header">
               <h1>🎵 Twoje Playlisty</h1>
               <div className="header-actions">
@@ -230,13 +219,15 @@ function App() {
                 {localStorage.getItem("spotify_access_token") && (
                   <button
                     className="btn btn-ghost"
-                    onClick={() => setView("spotify-profile")}>
+                    onClick={() => setView("spotify-profile")}
+                  >
                     Profil Spotify
                   </button>
                 )}
                 <button
                   className="btn btn-ghost"
-                  onClick={() => setView("settings")}>
+                  onClick={() => setView("settings")}
+                >
                   Ustawienia
                 </button>
                 <button onClick={handleLogout} className="btn btn-danger">
@@ -245,7 +236,7 @@ function App() {
               </div>
             </div>
             <div className="playlists-grid">
-              {playlists && playlists.length > 0 ? (
+              {playlists && playlists.length > 0 ?
                 playlists.map((playlist) => {
                   const isFav = favorites.some(
                     (fav) => fav.playlist_id === playlist.id,
@@ -254,7 +245,8 @@ function App() {
                     <div key={playlist.id} className="playlist-card">
                       <div
                         className="playlist-image-container"
-                        onClick={() => handlePlaylistClick(playlist)}>
+                        onClick={() => handlePlaylistClick(playlist)}
+                      >
                         <img
                           src={playlist.images[0]?.url}
                           alt={playlist.name}
@@ -277,15 +269,15 @@ function App() {
                           }}
                           title={
                             isFav ? "Usuń z ulubionych" : "Dodaj do ulubionych"
-                          }>
+                          }
+                        >
                           {isFav ? "❤️" : "🤍"}
                         </button>
                       </div>
                     </div>
                   );
                 })
-              ) : (
-                <div className="no-spotify-prompt">
+              : <div className="no-spotify-prompt">
                   <div className="no-spotify-icon">🎵</div>
                   <h2>Połącz swoje konto Spotify</h2>
                   <p className="spotify-status-description">
@@ -294,14 +286,15 @@ function App() {
                   </p>
                   <button
                     className="btn-spotify"
-                    onClick={() => setView("settings")}>
+                    onClick={() => setView("settings")}
+                  >
                     Przejdź do ustawień
                   </button>
                 </div>
-              )}
+              }
             </div>
           </div>
-        )}
+        }
       </header>
     </div>
   );

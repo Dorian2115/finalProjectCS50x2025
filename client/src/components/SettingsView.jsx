@@ -3,7 +3,6 @@ import { useState } from "react";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
-// widok ustawien - edycja profilu, zmiana hasla, integracja spotify
 function SettingsView() {
   const userData = JSON.parse(localStorage.getItem("user")) || {};
 
@@ -11,10 +10,7 @@ function SettingsView() {
     !!localStorage.getItem("spotify_access_token"),
   );
 
-  // stan formularza profilu
-  const [displayName, setDisplayName] = useState(
-    userData.displayName || "",
-  );
+  const [displayName, setDisplayName] = useState(userData.displayName || "");
   const [email, setEmail] = useState(userData.email || "");
   const [profileErrors, setProfileErrors] = useState({
     displayName: "",
@@ -27,7 +23,6 @@ function SettingsView() {
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileSuccess, setProfileSuccess] = useState("");
 
-  // stan formularza hasla
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -44,13 +39,11 @@ function SettingsView() {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordSuccess, setPasswordSuccess] = useState("");
 
-  // inicjal na awatar
   const getInitials = (name) => {
     if (!name) return "?";
     return name.charAt(0).toUpperCase();
   };
 
-  // walidacja pol profilu
   const validateProfileField = (fieldName, value) => {
     switch (fieldName) {
       case "displayName":
@@ -68,7 +61,6 @@ function SettingsView() {
     }
   };
 
-  // walidacja pol hasla
   const validatePasswordField = (fieldName, value) => {
     switch (fieldName) {
       case "currentPassword":
@@ -88,7 +80,6 @@ function SettingsView() {
     }
   };
 
-  // zapis profilu - PUT /api/auth/profile
   const handleProfileSubmit = async () => {
     setProfileSuccess("");
     const validationResults = {
@@ -121,7 +112,6 @@ function SettingsView() {
 
       const data = await response.json();
 
-      // aktualizacja localstorage
       const currentUser = JSON.parse(localStorage.getItem("user")) || {};
       const updatedUser = { ...currentUser, ...data.user };
       localStorage.setItem("user", JSON.stringify(updatedUser));
@@ -137,7 +127,6 @@ function SettingsView() {
     }
   };
 
-  // zmiana hasla - PUT /api/auth/password
   const handlePasswordSubmit = async () => {
     setPasswordSuccess("");
     const validationResults = {
@@ -202,7 +191,6 @@ function SettingsView() {
     }
   };
 
-  // rozlaczenie spotify
   const handleSpotifyLogout = async () => {
     localStorage.removeItem("spotify_access_token");
     localStorage.removeItem("spotify_refresh_token");
@@ -221,7 +209,6 @@ function SettingsView() {
       </div>
 
       <div className="settings-grid">
-        {/* karta edycji profilu */}
         <div className="settings-card">
           <div className="card-header">
             <h3>👤 Edytuj Profil</h3>
@@ -229,17 +216,16 @@ function SettingsView() {
 
           <div className="settings-form">
             <div className="settings-avatar-row">
-              {userData.profileImageUrl ? (
+              {userData.profileImageUrl ?
                 <img
                   src={userData.profileImageUrl}
                   alt="Profile"
                   className="settings-avatar"
                 />
-              ) : (
-                <div className="settings-avatar-placeholder">
+              : <div className="settings-avatar-placeholder">
                   {getInitials(displayName || userData.username)}
                 </div>
-              )}
+              }
             </div>
 
             {profileSuccess && (
@@ -326,13 +312,13 @@ function SettingsView() {
             <button
               className="form-submit"
               onClick={handleProfileSubmit}
-              disabled={profileLoading}>
+              disabled={profileLoading}
+            >
               {profileLoading ? "Zapisywanie..." : "Zapisz zmiany"}
             </button>
           </div>
         </div>
 
-        {/* karta zmiany hasla */}
         <div className="settings-card">
           <div className="card-header">
             <h3>🔒 Zmień Hasło</h3>
@@ -480,14 +466,14 @@ function SettingsView() {
             <button
               className="form-submit"
               onClick={handlePasswordSubmit}
-              disabled={passwordLoading}>
+              disabled={passwordLoading}
+            >
               {passwordLoading ? "Zmienianie..." : "Zmień hasło"}
             </button>
           </div>
         </div>
       </div>
 
-      {/* karta integracji spotify */}
       <div className="settings-card settings-card-full">
         <div className="card-header">
           <h3>🔗 Integracje</h3>
@@ -497,32 +483,33 @@ function SettingsView() {
           <div className="spotify-status-info">
             <h4>Spotify</h4>
             <div className="status-badge">
-              {spotifyConnected ? (
+              {spotifyConnected ?
                 <span className="badge badge-success">Połączono</span>
-              ) : (
-                <span className="badge badge-secondary">Nie połączono</span>
-              )}{" "}
-              {spotifyConnected ? (
+              : <span className="badge badge-secondary">Nie połączono</span>
+              }{" "}
+              {spotifyConnected ?
                 <button
                   onClick={handleSpotifyLogout}
-                  className="badge badge-secondary">
+                  className="badge badge-secondary"
+                >
                   Usuń połączenie ze Spotify
                 </button>
-              ) : (
-                <button
+              : <button
                   className="badge badge-secondary"
                   onClick={() =>
                     (window.location.href = `${API_BASE}/api/spotify/login`)
-                  }>
+                  }
+                >
                   Połącz ze Spotify
                 </button>
-              )}
+              }
             </div>
 
             <p className="spotify-status-description">
-              {spotifyConnected
-                ? "Twoje konto Spotify zostało pomyślnie zsynchronizowane z naszą aplikacją."
-                : "Połącz swoje konto Spotify, aby przeglądać swoje playlisty, ulubionych artystów oraz utwory."}
+              {spotifyConnected ?
+                "Twoje konto Spotify zostało pomyślnie zsynchronizowane z naszą aplikacją."
+              : "Połącz swoje konto Spotify, aby przeglądać swoje playlisty, ulubionych artystów oraz utwory."
+              }
             </p>
           </div>
         </div>
