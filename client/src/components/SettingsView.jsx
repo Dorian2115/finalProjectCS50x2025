@@ -3,7 +3,6 @@ import { useState } from "react";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
-// widok ustawien - edycja profilu, zmiana hasla, integracja spotify
 function SettingsView() {
   const userData = JSON.parse(localStorage.getItem("user")) || {};
 
@@ -11,7 +10,6 @@ function SettingsView() {
     !!localStorage.getItem("spotify_access_token"),
   );
 
-  // stan formularza profilu
   const [displayName, setDisplayName] = useState(
     userData.displayName || "",
   );
@@ -27,7 +25,6 @@ function SettingsView() {
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileSuccess, setProfileSuccess] = useState("");
 
-  // stan formularza hasla
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -44,13 +41,11 @@ function SettingsView() {
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordSuccess, setPasswordSuccess] = useState("");
 
-  // inicjal na awatar
   const getInitials = (name) => {
     if (!name) return "?";
     return name.charAt(0).toUpperCase();
   };
 
-  // walidacja pol profilu
   const validateProfileField = (fieldName, value) => {
     switch (fieldName) {
       case "displayName":
@@ -68,7 +63,6 @@ function SettingsView() {
     }
   };
 
-  // walidacja pol hasla
   const validatePasswordField = (fieldName, value) => {
     switch (fieldName) {
       case "currentPassword":
@@ -88,7 +82,6 @@ function SettingsView() {
     }
   };
 
-  // zapis profilu - PUT /api/auth/profile
   const handleProfileSubmit = async () => {
     setProfileSuccess("");
     const validationResults = {
@@ -121,7 +114,6 @@ function SettingsView() {
 
       const data = await response.json();
 
-      // aktualizacja localstorage
       const currentUser = JSON.parse(localStorage.getItem("user")) || {};
       const updatedUser = { ...currentUser, ...data.user };
       localStorage.setItem("user", JSON.stringify(updatedUser));
@@ -137,7 +129,6 @@ function SettingsView() {
     }
   };
 
-  // zmiana hasla - PUT /api/auth/password
   const handlePasswordSubmit = async () => {
     setPasswordSuccess("");
     const validationResults = {
@@ -202,7 +193,6 @@ function SettingsView() {
     }
   };
 
-  // rozlaczenie spotify
   const handleSpotifyLogout = async () => {
     localStorage.removeItem("spotify_access_token");
     localStorage.removeItem("spotify_refresh_token");
@@ -221,7 +211,6 @@ function SettingsView() {
       </div>
 
       <div className="settings-grid">
-        {/* karta edycji profilu */}
         <div className="settings-card">
           <div className="card-header">
             <h3>👤 Edytuj Profil</h3>
@@ -332,7 +321,6 @@ function SettingsView() {
           </div>
         </div>
 
-        {/* karta zmiany hasla */}
         <div className="settings-card">
           <div className="card-header">
             <h3>🔒 Zmień Hasło</h3>
@@ -487,7 +475,6 @@ function SettingsView() {
         </div>
       </div>
 
-      {/* karta integracji spotify */}
       <div className="settings-card settings-card-full">
         <div className="card-header">
           <h3>🔗 Integracje</h3>

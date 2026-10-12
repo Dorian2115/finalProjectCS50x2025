@@ -1,14 +1,12 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-// laczenie z baza mongo
 const connectDB = async () => {
   try {
     console.log(process.env.MONGODB_URI);
     await mongoose.connect(process.env.MONGODB_URI);
     console.log("Connected to MongoDB");
 
-    // usuwanie starego indeksu spotifyId_1 jesli istnieje
     try {
       const collection = mongoose.connection.collection("users");
       const indexes = await collection.indexes();

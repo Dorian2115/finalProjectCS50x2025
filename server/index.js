@@ -16,7 +16,6 @@ const PORT = process.env.PORT || 3001;
 const CLIENT_URL = process.env.CLIENT_URL;
 const REDIRECT_URI = process.env.REDIRECT_URI;
 
-// cors
 app.use(
   cors({
     origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
@@ -24,7 +23,6 @@ app.use(
   }),
 );
 
-// naglowki bezpieczenstwa
 app.use((req, res, next) => {
   res.setHeader(
     "Content-Security-Policy",
@@ -49,7 +47,6 @@ app.use((req, res, next) => {
 app.use(cors());
 app.use(express.json());
 
-// routing
 app.use("/api/spotify", spotifyRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/favorites", favoritesRoutes);
@@ -58,12 +55,10 @@ app.get("/", (request, response) => {
   response.send("Server is running");
 });
 
-// 404
 app.use((req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
 
-// globalny error handler
 app.use((err, req, res, next) => {
   console.error("Unhandled error:", err);
   res.status(err.status || 500).json({

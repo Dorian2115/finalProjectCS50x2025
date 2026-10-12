@@ -7,7 +7,6 @@ const { authenticateToken } = require("../middleware/auth");
 
 const router = express.Router();
 
-// pobierz wszystkich userow
 router.get("/", async (request, response) => {
   try {
     const users = await User.find();
@@ -18,7 +17,6 @@ router.get("/", async (request, response) => {
   }
 });
 
-// logowanie
 router.post(
   "/login",
   body("email").isEmail().withMessage("Niepoprawny format email"),
@@ -66,7 +64,6 @@ router.post(
   },
 );
 
-// rejestracja
 router.post(
   "/register",
   body("email")
@@ -132,7 +129,6 @@ router.post(
   },
 );
 
-// edycja profilu
 router.put(
   "/profile",
   authenticateToken,
@@ -154,7 +150,6 @@ router.put(
       const { displayName, email } = request.body;
       const userId = request.user.userId;
 
-      // sprawdzenie unikalnosci emaila
       const existingUser = await User.findOne({ email, _id: { $ne: userId } });
       if (existingUser) {
         return response
@@ -186,7 +181,6 @@ router.put(
   },
 );
 
-// zmiana hasla
 router.put(
   "/password",
   authenticateToken,
@@ -211,7 +205,6 @@ router.put(
         return response.status(404).json({ error: "Użytkownik nie znaleziony" });
       }
 
-      // weryfikacja starego hasla
       const isPasswordValid = await bcrypt.compare(
         currentPassword,
         user.passwordHash,
@@ -222,7 +215,6 @@ router.put(
           .json({ error: "Aktualne hasło jest nieprawidłowe" });
       }
 
-      // hash i zapis nowego
       user.passwordHash = await bcrypt.hash(newPassword, 10);
       await user.save();
 

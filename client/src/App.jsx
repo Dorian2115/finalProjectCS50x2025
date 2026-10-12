@@ -10,7 +10,6 @@ import SettingsView from "./components/SettingsView.jsx";
 
 const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
 
-// pomocnicze - tokeny z localstorage
 function getAuthHeaders() {
   const token = localStorage.getItem("spotify_access_token");
   return token ? { Authorization: `Bearer ${token}` } : {};
@@ -28,16 +27,13 @@ function App() {
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const { theme, toggleTheme } = useTheme();
 
-  // widok startowy - jesli jest token to lista, jesli nie to login
   const [view, setView] = useState(() => {
     const token = localStorage.getItem("token");
     return token ? "list" : "login";
   });
 
-  // klucz do wymuszenia refetcha po polaczeniu spotify
   const [refreshKey, setRefreshKey] = useState(0);
 
-  // obsluga powrotu z oauth spotify - tokeny z url hash
   useEffect(() => {
     const hash = window.location.hash.substring(1);
     if (hash) {
@@ -69,7 +65,6 @@ function App() {
     }
   }, []);
 
-  // fetch playlist i ulubionych z api
   useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem("spotify_access_token");
@@ -107,7 +102,6 @@ function App() {
     fetchData();
   }, [refreshKey]);
 
-  // dodaj/usun z ulubionych
   const toggleFavorite = async (playlist) => {
     const isFav = favorites.some((fav) => fav.playlist_id === playlist.id);
 
@@ -148,7 +142,6 @@ function App() {
     setView("details");
   };
 
-  // wylogowanie - czyszczenie localstorage
   const handleLogout = () => {
     localStorage.removeItem("spotify_access_token");
     localStorage.removeItem("spotify_refresh_token");
@@ -215,7 +208,6 @@ function App() {
             <UserDetails />
           </div>
         ) : (
-          // widok listy playlist
           <div className="playlists-container">
             <div className="page-header">
               <h1>🎵 Twoje Playlisty</h1>
