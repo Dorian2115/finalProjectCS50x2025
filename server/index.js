@@ -23,24 +23,23 @@ const rawClientUrl = process.env.CLIENT_URL
 const allowedOrigins = [
   "http://localhost:5173",
   "http://127.0.0.1:5173",
-  "http://localhost:3000",
+  "http://localhost:8000",
   rawClientUrl,
 ].filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Zezwalaj na żądania bez nagłówka Origin (np. mobile, curl, Postman)
       if (!origin) {
         return callback(null, true);
       }
 
       const cleanOrigin = origin.replace(/\/$/, "");
-
-      // Akceptuj localhost, skonfigurowany CLIENT_URL, dowolną domenę vercel.app lub dynamicznie dopuszczaj
       if (
         allowedOrigins.includes(cleanOrigin) ||
-        /^https?:\/\/([a-zA-Z0-9-]+\.)*vercel\.app$/i.test(cleanOrigin) ||
+        /^https?:\/\/([a-zA-Z0-9-]+\.)*(vercel\.app|onrender\.com)$/i.test(
+          cleanOrigin,
+        ) ||
         cleanOrigin.includes("localhost") ||
         cleanOrigin.includes("127.0.0.1")
       ) {
