@@ -6,7 +6,7 @@ const API_BASE = (import.meta.env.API_URL || "http://localhost:3001").replace(
   "",
 );
 
-function SettingsView() {
+function SettingsView({ onSpotifyDisconnect }) {
   const userData = JSON.parse(localStorage.getItem("user")) || {};
 
   const [spotifyConnected, setSpotifyConnected] = useState(
@@ -202,6 +202,9 @@ function SettingsView() {
     localStorage.removeItem("spotify_token_expiry");
     localStorage.removeItem("spotify_user_id");
     setSpotifyConnected(false);
+    if (onSpotifyDisconnect) {
+      onSpotifyDisconnect();
+    }
   };
 
   return (
