@@ -83,6 +83,16 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
+// Upewnij się, że połączenie z MongoDB jest aktywne (kluczowe na Vercel/serverless)
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+  } catch (err) {
+    console.error("Database connection failed in request middleware:", err);
+  }
+  next();
+});
+
 app.use("/api/spotify", spotifyRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/favorites", favoritesRoutes);
