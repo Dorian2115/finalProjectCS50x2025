@@ -20,12 +20,7 @@ const rawClientUrl = process.env.CLIENT_URL
   ? process.env.CLIENT_URL.trim().replace(/\/$/, "")
   : null;
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://127.0.0.1:5173",
-  "http://localhost:8000",
-  rawClientUrl,
-].filter(Boolean);
+const allowedOrigins = [rawClientUrl].filter(Boolean);
 
 app.use(
   cors({
@@ -83,7 +78,6 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
-// Upewnij się, że połączenie z MongoDB jest aktywne (kluczowe na Vercel/serverless)
 app.use(async (req, res, next) => {
   try {
     await connectDB();
