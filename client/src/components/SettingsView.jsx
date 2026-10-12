@@ -1,7 +1,10 @@
 import React from "react";
 import { useState } from "react";
 
-const API_BASE = (import.meta.env.API_URL || "http://localhost:3001").replace(/\/+$/, "");
+const API_BASE = (import.meta.env.API_URL || "http://localhost:3001").replace(
+  /\/+$/,
+  "",
+);
 
 function SettingsView() {
   const userData = JSON.parse(localStorage.getItem("user")) || {};
@@ -10,7 +13,6 @@ function SettingsView() {
     !!localStorage.getItem("spotify_access_token"),
   );
 
-  // stan formularza profilu
   const [displayName, setDisplayName] = useState(userData.displayName || "");
   const [email, setEmail] = useState(userData.email || "");
   const [profileErrors, setProfileErrors] = useState({
@@ -121,6 +123,7 @@ function SettingsView() {
       setProfileErrors({ displayName: "", email: "" });
 
       setTimeout(() => setProfileSuccess(""), 3000);
+      console.log("Zapisano użytkownika");
     } catch (err) {
       setProfileErrors((prev) => ({ ...prev, general: err.message }));
     } finally {
@@ -185,6 +188,7 @@ function SettingsView() {
       });
 
       setTimeout(() => setPasswordSuccess(""), 3000);
+      console.log("Zmieniono hasło");
     } catch (err) {
       setPasswordErrors((prev) => ({ ...prev, general: err.message }));
     } finally {

@@ -77,18 +77,15 @@ router.post(
   body("password")
     .isLength({ min: 8, max: 100 })
     .withMessage("Hasło musi mieć od 8 do 100 znaków"),
-  body("profileImageUrl")
-    .optional()
-    .isURL()
-    .withMessage("Niepoprawny URL zdjęcia profilowego"),
   async (request, response) => {
+    console.log("Zaczynam tworzenie konta");
     const errors = validationResult(request);
     if (!errors.isEmpty()) {
       const errorMessages = errors.array().map((err) => err.msg);
       return response.status(400).json({ error: errorMessages.join(", ") });
     }
     try {
-      const { email, displayName, password, profileImageUrl } = request.body;
+      const { email, displayName, password } = request.body;
 
       const existingUser = await User.findOne({ email });
       if (existingUser) {
@@ -101,7 +98,6 @@ router.post(
       const newUser = new User({
         email,
         displayName,
-        profileImageUrl,
         passwordHash: hashedPassword,
       });
 

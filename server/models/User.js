@@ -4,7 +4,6 @@ const userSchema = new mongoose.Schema({
   spotifyId: { type: String, unique: true, sparse: true },
   displayName: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  profileImageUrl: { type: String },
   passwordHash: { type: String },
 });
 

@@ -16,44 +16,48 @@ const PORT = process.env.PORT || 3001;
 const CLIENT_URL = process.env.CLIENT_URL;
 const REDIRECT_URI = process.env.REDIRECT_URI;
 
-const rawClientUrl = process.env.CLIENT_URL
-  ? process.env.CLIENT_URL.trim().replace(/\/$/, "")
-  : null;
+const rawClientUrl = process.env.CLIENT_URL;
 
-const allowedOrigins = [rawClientUrl].filter(Boolean);
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://spotifyappclient-a2t3q54uv-dominikdlugolenckidev-4763s-projects.vercel.app",
+  rawClientUrl,
+];
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin) {
-        return callback(null, true);
-      }
-
-      const cleanOrigin = origin.replace(/\/$/, "");
-      if (
-        allowedOrigins.includes(cleanOrigin) ||
-        /^https?:\/\/([a-zA-Z0-9-]+\.)*(vercel\.app|onrender\.com)$/i.test(
-          cleanOrigin,
-        ) ||
-        cleanOrigin.includes("localhost") ||
-        cleanOrigin.includes("127.0.0.1")
-      ) {
-        return callback(null, true);
-      }
-
+const corsOptions = {
+  origin(origin, callback) {
+    if (!origin) {
       return callback(null, true);
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "X-Requested-With",
-      "Accept",
-    ],
-    optionsSuccessStatus: 200,
-  }),
-);
+    }
+
+    const cleanOrigin = origin.replace(/\/$/, "");
+
+    const isAllowed =
+      allowedOrigins.includes(cleanOrigin) ||
+      /^https?:\/\/([a-zA-Z0-9-]+\.)*(vercel\.app|onrender\.com)$/i.test(
+        cleanOrigin,
+      );
+
+    if (isAllowed) {
+      return callback(null, true);
+    }
+
+    return callback(new Error("Origin not allowed by CORS"));
+  },
+
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "Accept",
+  ],
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 
 app.use((req, res, next) => {
   res.setHeader(
