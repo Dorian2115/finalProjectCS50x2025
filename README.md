@@ -1,6 +1,6 @@
 # Spotify Playlist App — CS50x 2025 Final Project
 
-#### Live server: https://spotifyappserver-eta.vercel.app
+#### Live server: https://spotifyappclient.vercel.app
 
 ## Description
 
