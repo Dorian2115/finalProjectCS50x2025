@@ -209,8 +209,7 @@ function App() {
             </div>
             <UserDetails />
           </div>
-        ) : (
-          // widok listy playlist
+        :
           <div className="playlists-container">
             <div className="page-header">
               <h1>🎵 Twoje Playlisty</h1>
