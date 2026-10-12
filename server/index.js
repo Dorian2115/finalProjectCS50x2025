@@ -53,6 +53,7 @@ const corsOptions = {
     "Authorization",
     "X-Requested-With",
     "Accept",
+    "token",
   ],
   optionsSuccessStatus: 200,
 };

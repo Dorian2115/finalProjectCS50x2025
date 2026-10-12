@@ -82,7 +82,6 @@ function App() {
           axios.get(`${API_BASE}/api/favorites`, {
             headers: {
               Authorization: `Bearer ${getAccessToken()}`,
-              token: getAccessToken(),
             },
           }),
         ]);
@@ -107,7 +106,7 @@ function App() {
     const isFav = favorites.some((fav) => fav.playlist_id === playlist.id);
 
     try {
-      const user = localStorage.getItem("user");
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
       if (isFav) {
         await axios.delete(`${API_BASE}/api/favorites/${playlist.id}`, {
           headers: {
