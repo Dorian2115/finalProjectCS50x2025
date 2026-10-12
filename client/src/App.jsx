@@ -8,7 +8,7 @@ import RegisterForm from "./components/RegisterForm";
 import { ThemeProvider, useTheme } from "./ThemeContext.jsx";
 import SettingsView from "./components/SettingsView.jsx";
 
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3001";
+const API_BASE = import.meta.env.API_URL || "http://localhost:3001";
 
 function getAuthHeaders() {
   const token = localStorage.getItem("spotify_access_token");
