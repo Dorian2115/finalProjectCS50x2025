@@ -102,7 +102,6 @@ npm install
 Create a `server/.env` file:
 
 ```env
-# TODO: replace with the exact variable names used in your code
 MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_long_random_secret
 SPOTIFY_CLIENT_ID=your_spotify_client_id
@@ -138,8 +137,6 @@ npm run lint      # ESLint
 
 ## Design Decisions
 
-<!-- CS50x expects you to explain WHY you chose things this way. Fill in with your own reasoning – suggestions below. -->
-
 - **Separate client and server** – keeps the Spotify credentials and database access on the backend and lets the front end and API be deployed independently.
 - **JWT in cookies + bcrypt** 
 - **MongoDB with Mongoose** 
@@ -149,8 +146,6 @@ npm run lint      # ESLint
 - **Vercel** 
 
 ## Challenges and Possible Improvements
-
-<!-- TODO: what was hardest? what would you add next? -->
 
 - Add automated tests (the server currently has no test script)
 
