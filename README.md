@@ -104,17 +104,22 @@ Create a `server/.env` file:
 ```env
 MONGODB_URI=your_mongodb_connection_string
 JWT_SECRET=your_long_random_secret
-SPOTIFY_CLIENT_ID=your_spotify_client_id
-SPOTIFY_CLIENT_SECRET=your_spotify_client_secret
-PORT=5000
+CLIENT_ID=your_spotify_client_id
+CLIENT_SECRET=your_spotify_client_secret
+REDIRECT_URI=http://localhost:3001/api/spotify/callback
+CLIENT_URL=http://localhost:5173
+PORT=3001
 ```
+
+Add `http://localhost:3001/api/spotify/callback` as a Redirect URI in your Spotify app settings.
+Do not commit the `.env` file or share its secrets.
 
 Start it:
 
 ```bash
-npm run live   # development with auto-reload (nodemon)
+npm run live   
 # or
-npm start      # plain node
+npm start      
 ```
 
 ### 3. Run the client
@@ -125,14 +130,19 @@ npm install
 npm run dev
 ```
 
-Vite will print the local address (usually http://localhost:5173). Make sure the client points to your server's URL (for production it is set in `client/.env.production`).
+Vite will print the local address (usually http://localhost:5173). During development, the client defaults to the local API at `http://localhost:3001`.
+The production API URL is configured in `client/.env.production` and is used for production builds. To override the API URL locally, create `client/.env.development.local` with:
+
+```env
+API_URL=http://localhost:3001
+```
 
 ### Other scripts (client)
 
 ```bash
-npm run build     # production build
-npm run preview   # preview the production build
-npm run lint      # ESLint
+npm run build     
+npm run preview   
+npm run lint      
 ```
 
 ## Design Decisions
@@ -153,4 +163,4 @@ npm run lint      # ESLint
 
 Dominik — [@Dorian2115](https://github.com/Dorian2115)
 
-Read me was generated with the use of AI
+Readme was generated with the use of AI
