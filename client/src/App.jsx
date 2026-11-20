@@ -79,19 +79,17 @@ function App() {
 
       setLoading(true);
       try {
-        const [playlistsRes, favoritesRes] = await Promise.all([
-          axios.get(`${API_BASE}/api/spotify/playlists`, {
-            headers: getAuthHeaders(),
-          }),
-          axios.get(`${API_BASE}/api/favorites`, {
-            headers: {
-              Authorization: `Bearer ${getAccessToken()}`,
-            },
-          }),
-        ]);
-
+        // Favorites failing (e.g. expired app JWT) must not hide playlists.
+        axios
+          .get(`${API_BASE}/api/favorites`, {
+            headers: { Authorization: `Bearer ${getAccessToken()}` },
+          })
+          .then((res) => setFavorites(res.data))
+          .catch((err) => console.error("Error fetching favorites:", err));
+        const playlistsRes = await axios.get(`${API_BASE}/api/spotify/playlists`, {
+          headers: getAuthHeaders(),
+        });
         setPlaylists(playlistsRes.data.items);
-        setFavorites(favoritesRes.data);
       } catch (error) {
         console.error("Error fetching data:", error);
         if (error.response && error.response.status === 401) {
@@ -123,7 +121,7 @@ function App() {
         const newFav = {
           playlist_id: playlist.id,
           playlist_name: playlist.name,
-          playlist_image: playlist.images[0]?.url,
+          playlist_image: playlist.images?.[0]?.url,
         };
         const res = await axios.post(`${API_BASE}/api/favorites`, newFav, {
           headers: {
@@ -253,7 +251,7 @@ function App() {
                         className="playlist-image-container"
                         onClick={() => handlePlaylistClick(playlist)}>
                         <img
-                          src={playlist.images[0]?.url}
+                          src={playlist.images?.[0]?.url}
                           alt={playlist.name}
                           className="playlist-image"
                         />

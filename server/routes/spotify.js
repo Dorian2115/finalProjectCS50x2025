@@ -219,7 +219,9 @@ router.get("/playlists", async (request, response) => {
     response.json(playlistsResponse.data);
   } catch (error) {
     console.error(error);
-    response.status(500).json({ error: "Failed to fetch playlists" });
+    response
+      .status(error.response?.status || 500)
+      .json({ error: "Failed to fetch playlists" });
   }
 });
 
