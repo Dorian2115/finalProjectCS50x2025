@@ -8,7 +8,7 @@ router.use(authMiddleware.authenticateToken);
 
 router.get("/", async (request, response) => {
   try {
-    const favorites = await Favorite.find();
+    const favorites = await Favorite.find({ userId: request.user.userId });
     response.json(favorites);
   } catch (err) {
     console.error(err);
@@ -18,10 +18,9 @@ router.get("/", async (request, response) => {
 
 router.post("/", async (request, response) => {
   try {
-    const { playlist_id, playlist_name, playlist_image, user_id } =
-      request.body;
+    const { playlist_id, playlist_name, playlist_image } = request.body;
 
-    const user = await User.findOne({ spotifyId: user_id });
+    const user = await User.findById(request.user.userId);
     if (!user) {
       return response.status(404).json({ error: "User not found" });
     }
@@ -47,9 +46,8 @@ router.post("/", async (request, response) => {
 router.delete("/:id", async (request, response) => {
   try {
     const { id } = request.params;
-    const { user_id } = request.body;
-
-    const user = await User.findOne({ spotifyId: user_id });
+    
+    const user = await User.findById(request.user.userId);
     if (!user) {
       return response.status(404).json({ error: "User not found" });
     }

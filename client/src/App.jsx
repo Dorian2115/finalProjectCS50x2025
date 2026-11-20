@@ -107,33 +107,30 @@ function App() {
   }, [refreshKey, view]);
 
   const toggleFavorite = async (playlist) => {
-    const isFav = favorites.some((fav) => fav.playlist_id === playlist.id);
+    const isFav = favorites.some((fav) => fav.playlistId === playlist.id);
 
     try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
       if (isFav) {
         await axios.delete(`${API_BASE}/api/favorites/${playlist.id}`, {
           headers: {
             Authorization: `Bearer ${getAccessToken()}`,
           },
-          data: { user_id: user.id },
         });
         setFavorites(
-          favorites.filter((fav) => fav.playlist_id !== playlist.id),
+          favorites.filter((fav) => fav.playlistId !== playlist.id),
         );
       } else {
         const newFav = {
           playlist_id: playlist.id,
           playlist_name: playlist.name,
           playlist_image: playlist.images[0]?.url,
-          user_id: user.id,
         };
-        await axios.post(`${API_BASE}/api/favorites`, newFav, {
+        const res = await axios.post(`${API_BASE}/api/favorites`, newFav, {
           headers: {
             Authorization: `Bearer ${getAccessToken()}`,
           },
         });
-        setFavorites([...favorites, newFav]);
+        setFavorites([...favorites, res.data.favorite]);
       }
     } catch (error) {
       console.error("Error toggling favorite:", error);
@@ -248,7 +245,7 @@ function App() {
               playlists.length > 0 ? (
                 playlists.map((playlist) => {
                   const isFav = favorites.some(
-                    (fav) => fav.playlist_id === playlist.id,
+                    (fav) => fav.playlistId === playlist.id,
                   );
                   return (
                     <div key={playlist.id} className="playlist-card">
