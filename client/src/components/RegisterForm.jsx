@@ -1,5 +1,5 @@
 import { useState } from "react";
-const { validateField } = require("../utils/validation");
+import { validateField } from "../utils/validation.js";
 
 const API_BASE = (import.meta.env.API_URL || "http://localhost:3001").replace(
   /\/+$/,
@@ -37,7 +37,11 @@ function RegisterForm({ onSuccess, onSwitchToLogin }) {
       displayName: validateField("displayName", displayName),
       email: validateField("email", email),
       password: validateField("password", password),
-      confirmPassword: validateField("confirmPassword", confirmPassword),
+      confirmPassword: validateField(
+        "confirmPassword",
+        confirmPassword,
+        password,
+      ),
     };
     if (Object.values(validationResults).some((err) => err)) {
       setErrors(validationResults);

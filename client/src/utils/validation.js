@@ -1,4 +1,5 @@
-const validateField = (fieldName, value) => {
+const validateField = (fieldName, value, password) => {
+  let regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   switch (fieldName) {
     case "displayName":
       if (!value) {
@@ -24,7 +25,7 @@ const validateField = (fieldName, value) => {
     case "email":
       if (!value) {
         return "Email jest wymagany";
-      } else if (!/^[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[A-Za-z]+$/.test(value)) {
+      } else if (!regex.test(value)) {
         return "Email jest nieprawidłowy";
       }
       return "";
