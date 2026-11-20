@@ -7,16 +7,6 @@ const { authenticateToken } = require("../middleware/auth");
 
 const router = express.Router();
 
-router.get("/", async (request, response) => {
-  try {
-    const users = await User.find();
-    response.json(users);
-  } catch (err) {
-    console.error(err);
-    response.status(500).json({ error: "Failed to fetch users" });
-  }
-});
-
 router.post(
   "/login",
   body("email").isEmail().withMessage("Niepoprawny format email"),
